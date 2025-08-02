@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+import { validateDemoCredentials } from '../config/supabase';
 
 // Estado inicial
 interface AuthState {
@@ -99,26 +100,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (username: string, password: string): Promise<boolean> => {
     dispatch({ type: 'LOGIN_START' });
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simple demo login - only accept demo credentials
-    if (username === 'demo' && password === 'demo123') {
-      const user: DemoUser = {
-        id: '1',
-        username: 'demo',
-        email: 'demo@rifas.com',
-        role: 'demo',
-        loginTime: new Date().toISOString()
-      };
+    try {
+      // Validate credentials with Supabase
+      const validationResult = await validateDemoCredentials(username, password);
       
-      dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      localStorage.setItem('demoUser', JSON.stringify(user));
-      return true;
+      if (validationResult.isValid && validationResult.userData) {
+        const user: DemoUser = {
+          id: validationResult.userData.id.toString(),
+          username: validationResult.userData.username,
+          email: validationResult.userData.email,
+          role: 'demo',
+          loginTime: new Date().toISOString()
+        };
+        
+        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+        localStorage.setItem('demoUser', JSON.stringify(user));
+        return true;
+      }
+      
+      dispatch({ type: 'LOGIN_FAILURE' });
+      return false;
+    } catch (error) {
+      console.error('Error during login:', error);
+      dispatch({ type: 'LOGIN_FAILURE' });
+      return false;
     }
-    
-    dispatch({ type: 'LOGIN_FAILURE' });
-    return false;
   };
 
   const logout = () => {

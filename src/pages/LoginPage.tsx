@@ -7,6 +7,11 @@ const LoginPage = () => {
   const { state, login } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -19,15 +24,30 @@ const LoginPage = () => {
     return <Navigate to="/" replace />;
   }
 
-  const handleDemoLogin = async () => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setError(''); // Clear error when user types
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
+    setError('');
+    
     try {
-      const success = await login('demo', 'demo123');
+      const success = await login(formData.username, formData.password);
       if (success) {
         navigate('/');
+      } else {
+        setError('Credenciales inválidas o expiradas. Por favor, solicita nuevas credenciales desde la página principal.');
       }
     } catch (err) {
       console.error('Error al iniciar sesión:', err);
+      setError('Error al conectar con el servidor. Inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -44,17 +64,57 @@ const LoginPage = () => {
               <div className="card-body p-5">
                 <div className="text-center mb-4">
                   <h1 className="h3 mb-3 fw-bold text-primary">EasyRif Demo</h1>
-                  <p className="text-muted">Sistema de Gestión de Rifas</p>
+                  <p className="text-muted">Acceso con Credenciales Temporales</p>
                 </div>
 
-                <div className="text-center">
-                  <p className="text-muted mb-4">Haz clic para acceder a la demo:</p>
-                  
+                {error && (
+                  <div className="alert alert-danger" role="alert">
+                    <i className="bi bi-exclamation-triangle me-2"></i>
+                    {error}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3">
+                    <label htmlFor="username" className="form-label fw-bold">
+                      <i className="bi bi-person me-2"></i>
+                      Usuario
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="username"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      placeholder="Ingresa tu usuario"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label htmlFor="password" className="form-label fw-bold">
+                      <i className="bi bi-lock me-2"></i>
+                      Contraseña
+                    </label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="Ingresa tu contraseña"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+
                   <button
-                    type="button"
+                    type="submit"
                     className="btn btn-primary btn-lg w-100"
-                    onClick={handleDemoLogin}
-                    disabled={isLoading}
+                    disabled={isLoading || !formData.username || !formData.password}
                   >
                     {isLoading ? (
                       <>
@@ -68,21 +128,21 @@ const LoginPage = () => {
                       </>
                     )}
                   </button>
-                </div>
+                </form>
 
                 <div className="text-center mt-4">
                   <p className="text-muted mb-2">
-                    ¿No tienes cuenta?{' '}
-                    <Link to="/register" className="text-primary text-decoration-none fw-bold">
-                      Regístrate aquí
-                    </Link>
+                    ¿No tienes credenciales?{' '}
+                    <a href="https://rifas-landing.vercel.app" className="text-primary text-decoration-none fw-bold">
+                      Solicítalas aquí
+                    </a>
                   </p>
                 </div>
 
                 <div className="text-center mt-4">
                   <small className="text-muted">
                     <i className="bi bi-info-circle me-1"></i>
-                    Esta es una demostración local del sistema
+                    Las credenciales son válidas por 24 horas
                   </small>
                 </div>
               </div>
