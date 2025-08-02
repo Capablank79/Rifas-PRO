@@ -39,6 +39,60 @@ export interface CredentialValidation {
   }
 }
 
+// Función para validar solo el username (para sesiones guardadas)
+export const validateDemoUser = async (username: string): Promise<CredentialValidation> => {
+  // Si estamos usando credenciales placeholder, simular la respuesta
+  if (supabaseUrl === 'https://placeholder.supabase.co') {
+    console.warn('⚠️ Using placeholder Supabase credentials. Validation simulated.')
+    
+    // Simular credenciales válidas para testing
+    if (username === 'demo_user') {
+      return {
+        isValid: true,
+        userData: {
+          id: 'placeholder-id',
+          username: 'demo_user',
+          email: 'demo@example.com',
+          nombre: 'Usuario Demo',
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
+        }
+      }
+    }
+    
+    return { isValid: false }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('validate_demo_user', {
+      p_username: username
+    })
+
+    if (error) {
+      console.error('Error validating user:', error)
+      return { isValid: false }
+    }
+
+    if (data && data.length > 0) {
+      const user = data[0]
+      return {
+        isValid: true,
+        userData: {
+          id: user.id.toString(),
+          username: user.username,
+          email: user.email,
+          nombre: user.nombre,
+          expires_at: user.expires_at
+        }
+      }
+    }
+
+    return { isValid: false }
+  } catch (error) {
+    console.error('Error during user validation:', error)
+    return { isValid: false }
+  }
+}
+
 // Función para validar credenciales de demo
 export const validateDemoCredentials = async (username: string, password: string): Promise<CredentialValidation> => {
   // Si estamos usando credenciales placeholder, simular la respuesta

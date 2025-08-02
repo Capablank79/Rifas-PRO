@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
-import { validateDemoCredentials } from '../config/supabase';
+import { validateDemoCredentials, validateDemoUser } from '../config/supabase';
 
 // Estado inicial
 interface AuthState {
@@ -82,19 +82,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Restaurar sesión al cargar la aplicación
   useEffect(() => {
-    const savedUser = localStorage.getItem('demoUser');
-    if (savedUser) {
-      try {
-        const user = JSON.parse(savedUser);
-        dispatch({ type: 'RESTORE_SESSION', payload: user });
-      } catch (error) {
-        console.error('Error al restaurar sesión:', error);
-        localStorage.removeItem('demoUser');
+    const validateSavedSession = async () => {
+      const savedUser = localStorage.getItem('demoUser');
+      if (savedUser) {
+        try {
+          const user = JSON.parse(savedUser);
+          
+          // Validar que el usuario sigue siendo válido (no expirado)
+           const validationResult = await validateDemoUser(user.username);
+          
+          if (validationResult.isValid) {
+            dispatch({ type: 'RESTORE_SESSION', payload: user });
+          } else {
+            // Credenciales expiradas o inválidas, limpiar localStorage
+            console.log('Credenciales expiradas, requiere nuevo login');
+            localStorage.removeItem('demoUser');
+            dispatch({ type: 'LOGIN_FAILURE' });
+          }
+        } catch (error) {
+          console.error('Error al restaurar sesión:', error);
+          localStorage.removeItem('demoUser');
+          dispatch({ type: 'LOGIN_FAILURE' });
+        }
+      } else {
         dispatch({ type: 'LOGIN_FAILURE' });
       }
-    } else {
-      dispatch({ type: 'LOGIN_FAILURE' });
-    }
+    };
+    
+    validateSavedSession();
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
