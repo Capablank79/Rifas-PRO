@@ -1,0 +1,161 @@
+/* Importar sistema de branding EasyReef */
+@import './easyreef-branding.css';
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: hsl(0, 0%, 100%);
+  color: hsl(223, 20%, 18%);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* DrawModal component styles */
+.drawing-animation {
+  min-height: 100px;
+}
+
+.drawing-numbers {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.winner-number {
+  animation: pulse 1.5s infinite;
+}
+
+/* Estilos para la selección de números (estilo cine) */
+.cinema-container {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.cinema-screen {
+  height: 20px;
+  background-color: #e9ecef;
+  border-radius: 50%;
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 20px;
+  color: #6c757d;
+  position: relative;
+}
+
+.cinema-screen::before {
+  content: 'ESCOGE TUS NÚMEROS GANADORES';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.number-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.number-item {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.number-available {
+  background-color: #28a745;
+  color: white;
+}
+
+.number-available:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.number-selected {
+  background-color: var(--easyreef-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--easyreef-primary-glow);
+}
+
+.number-reserved {
+  background-color: var(--easyreef-secondary);
+  color: white;
+}
+
+.number-sold {
+  background-color: #dc3545;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+.legend-available {
+  background-color: #28a745;
+}
+
+.legend-selected {
+  background-color: var(--easyreef-primary);
+  border: 2px solid var(--easyreef-primary-glow);
+}
+
+.legend-sold {
+  background-color: #dc3545;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media print {
+  .modal-footer {
+    display: none;
+  }
+  .btn-close {
+    display: none;
+  }
+}

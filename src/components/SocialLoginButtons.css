@@ -1,0 +1,294 @@
+/* Social Login Buttons Styles */
+.social-login-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.social-login-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.social-login-header h6 {
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.pro-badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.badge.bg-gradient-pro {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+  background-size: 300% 300%;
+  animation: gradientShift 3s ease infinite;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.social-login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.social-login-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: white;
+  color: var(--social-color);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  min-height: 80px;
+}
+
+.social-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: var(--social-color);
+  background: var(--social-color);
+  color: white;
+}
+
+.social-login-btn:active {
+  transform: translateY(0);
+}
+
+.social-login-btn.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.btn-content i {
+  font-size: 1.25rem;
+}
+
+.btn-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.btn-benefits {
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-left: 2px solid var(--social-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Demo vs Pro Comparison */
+.demo-vs-pro {
+  margin-bottom: 2rem;
+}
+
+.comparison-card {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.demo-side, .pro-side {
+  text-align: center;
+}
+
+.demo-side h6, .pro-side h6 {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.vs-text {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.75rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Upgrade CTA */
+.upgrade-cta {
+  margin-bottom: 1.5rem;
+}
+
+.btn-gradient-pro {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+  background-size: 300% 300%;
+  animation: gradientShift 3s ease infinite;
+  border: none;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gradient-pro:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.btn-gradient-pro:active {
+  transform: translateY(0);
+}
+
+.btn-gradient-pro small {
+  font-weight: 400;
+  opacity: 0.9;
+  font-size: 0.7rem;
+}
+
+/* Demo Notice */
+.demo-notice {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  color: #856404;
+}
+
+.demo-notice i {
+  color: #ffc107;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .social-login-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  
+  .comparison-card {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .divider {
+    order: -1;
+  }
+  
+  .vs-text {
+    margin: 0 auto;
+  }
+  
+  .feature-list li {
+    justify-content: center;
+  }
+}
+
+/* Hover Effects */
+.social-login-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.social-login-btn:hover::before {
+  left: 100%;
+}
+
+/* Accessibility */
+.social-login-btn:focus {
+  outline: 2px solid var(--social-color);
+  outline-offset: 2px;
+}
+
+.btn-gradient-pro:focus {
+  outline: 2px solid #ff6b6b;
+  outline-offset: 2px;
+}

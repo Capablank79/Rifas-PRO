@@ -1,0 +1,77 @@
+/* Estilos para el menú desplegable */
+.dropdown-menu-end {
+  right: 0;
+  left: auto;
+}
+
+/* Asegurar que el menú desplegable se muestre correctamente en móviles */
+@media (max-width: 992px) {
+  .dropdown-menu {
+    position: static !important;
+    float: none;
+    width: auto;
+    margin-top: 0;
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+  
+  .dropdown-menu.show {
+    display: block;
+  }
+  
+  .dropdown-item {
+    color: rgba(255, 255, 255, 0.75) !important;
+    padding-left: 1.5rem;
+  }
+  
+  .dropdown-item:hover, .dropdown-item:focus {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .dropdown-divider {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Mejoras para el menú hamburguesa */
+  .navbar-collapse {
+    transition: all 0.3s ease;
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  .navbar-collapse.show {
+    max-height: 500px;
+  }
+
+  .navbar-toggler {
+    border: none;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .navbar-toggler:focus {
+    box-shadow: none !important;
+  }
+
+  .navbar-toggler-icon {
+    transition: all 0.3s ease;
+  }
+
+  /* Mejoras para el dropdown en móviles */
+  .nav-item.dropdown {
+    position: static;
+  }
+
+  .dropdown-toggle::after {
+    display: inline-block;
+    margin-left: 0.255em;
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+  }
+}
