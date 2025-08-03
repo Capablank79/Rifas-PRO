@@ -63,7 +63,7 @@ export const validateDemoUser = async (username: string): Promise<CredentialVali
   }
 
   try {
-    const { data, error } = await supabase.rpc('validate_demo_user', {
+    const { data, error } = await supabase.rpc('validate_demo_user_by_username', {
       p_username: username
     })
 
