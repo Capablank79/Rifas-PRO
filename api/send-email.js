@@ -2,20 +2,33 @@
 // Este archivo debe estar en /api/send-email.js para funcionar como serverless function
 
 export default async function handler(req, res) {
-  // Solo permitir método POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método no permitido' });
-  }
-
   // Configurar CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   // Manejar preflight request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
+
+  // Manejar verificación de variables de entorno
+  if (req.method === 'GET' && req.query.check === 'env') {
+    const envStatus = {
+      RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+      FROM_EMAIL: !!process.env.FROM_EMAIL,
+      FROM_NAME: !!process.env.FROM_NAME
+    };
+    
+    return res.status(200).json({ envStatus });
+  }
+
+  // Solo permitir método POST para envío de emails
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método no permitido' });
+  }
+
+
 
   try {
     const { to, subject, html, from } = req.body;
