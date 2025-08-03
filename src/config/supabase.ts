@@ -27,6 +27,22 @@ export interface DemoRequest {
   created_at?: string
 }
 
+// Tipos para la tabla waitlist
+export interface WaitlistEntry {
+  id?: string
+  name: string
+  email: string
+  phone?: string
+  organization?: string
+  interest: 'demo' | 'waitlist' | 'feedback' | 'partnership' | 'pricing' | 'other'
+  message?: string
+  priority?: number
+  status?: 'active' | 'contacted' | 'converted' | 'inactive'
+  source?: string
+  created_at?: string
+  updated_at?: string
+}
+
 // Tipo para validación de credenciales
 export interface CredentialValidation {
   isValid: boolean
@@ -222,8 +238,8 @@ export const getDemoCredentials = async (requestId: string) => {
 export const markEmailSent = async (requestId: string) => {
   // Si estamos usando credenciales placeholder, simular la respuesta
   if (supabaseUrl === 'https://placeholder.supabase.co') {
-    console.warn('⚠️ Using placeholder Supabase credentials. Email marked as sent (simulated).')
-    return
+    console.warn('⚠️ Using placeholder Supabase credentials. Update simulated.')
+    return { success: true }
   }
 
   const { error } = await supabase
@@ -235,4 +251,138 @@ export const markEmailSent = async (requestId: string) => {
     console.error('Error marking email as sent:', error)
     throw error
   }
+
+  return { success: true }
+}
+
+// ============================================
+// FUNCIONES PARA WAITLIST
+// ============================================
+
+// Función para insertar una nueva entrada en waitlist
+export const insertWaitlistEntry = async (data: Omit<WaitlistEntry, 'id' | 'created_at' | 'updated_at'>) => {
+  // Si estamos usando credenciales placeholder, simular la respuesta
+  if (supabaseUrl === 'https://placeholder.supabase.co') {
+    console.warn('⚠️ Using placeholder Supabase credentials. Waitlist entry simulated.')
+    return [{ ...data, id: 'placeholder-id', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }]
+  }
+
+  const { data: result, error } = await supabase
+    .from('waitlist')
+    .insert([{
+      ...data,
+      status: data.status || 'active',
+      priority: data.priority || 0,
+      source: data.source || 'homepage'
+    }])
+    .select()
+
+  if (error) {
+    console.error('Error inserting waitlist entry:', error)
+    throw error
+  }
+
+  return result
+}
+
+// Función para obtener todas las entradas de waitlist (para admin)
+export const getWaitlistEntries = async () => {
+  // Si estamos usando credenciales placeholder, simular la respuesta
+  if (supabaseUrl === 'https://placeholder.supabase.co') {
+    console.warn('⚠️ Using placeholder Supabase credentials. Returning empty waitlist data.')
+    return []
+  }
+
+  const { data, error } = await supabase
+    .from('waitlist')
+    .select('*')
+    .order('priority', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching waitlist entries:', error)
+    throw error
+  }
+
+  return data || []
+}
+
+// Función para actualizar el estado de una entrada de waitlist
+export const updateWaitlistStatus = async (id: string, status: WaitlistEntry['status']) => {
+  // Si estamos usando credenciales placeholder, simular la respuesta
+  if (supabaseUrl === 'https://placeholder.supabase.co') {
+    console.warn('⚠️ Using placeholder Supabase credentials. Status update simulated.')
+    return { success: true }
+  }
+
+  const { error } = await supabase
+    .from('waitlist')
+    .update({ status })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error updating waitlist status:', error)
+    throw error
+  }
+
+  return { success: true }
+}
+
+// Función para verificar si un email ya existe en waitlist
+export const checkEmailInWaitlist = async (email: string) => {
+  // Si estamos usando credenciales placeholder, simular la respuesta
+  if (supabaseUrl === 'https://placeholder.supabase.co') {
+    console.warn('⚠️ Using placeholder Supabase credentials. Email check simulated.')
+    return { exists: false }
+  }
+
+  const { data, error } = await supabase
+    .from('waitlist')
+    .select('id, email')
+    .eq('email', email)
+    .single()
+
+  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+    console.error('Error checking email in waitlist:', error)
+    throw error
+  }
+
+  return { exists: !!data }
+}
+
+// Función para obtener estadísticas de waitlist
+export const getWaitlistStats = async () => {
+  // Si estamos usando credenciales placeholder, simular la respuesta
+  if (supabaseUrl === 'https://placeholder.supabase.co') {
+    console.warn('⚠️ Using placeholder Supabase credentials. Returning mock stats.')
+    return {
+      total: 0,
+      active: 0,
+      contacted: 0,
+      converted: 0,
+      byInterest: {}
+    }
+  }
+
+  const { data, error } = await supabase
+    .from('waitlist')
+    .select('status, interest')
+
+  if (error) {
+    console.error('Error fetching waitlist stats:', error)
+    throw error
+  }
+
+  const stats = {
+    total: data.length,
+    active: data.filter(entry => entry.status === 'active').length,
+    contacted: data.filter(entry => entry.status === 'contacted').length,
+    converted: data.filter(entry => entry.status === 'converted').length,
+    byInterest: data.reduce((acc: Record<string, number>, entry) => {
+      acc[entry.interest] = (acc[entry.interest] || 0) + 1
+      return acc
+    }, {})
+  }
+
+  return stats
 }

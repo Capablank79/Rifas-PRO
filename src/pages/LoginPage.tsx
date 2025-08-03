@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import './LoginPage.css';
+import DemoRequestModal from '../components/DemoRequestModal';
 
 const LoginPage = () => {
   const { state, login } = useAuth();
@@ -12,6 +13,7 @@ const LoginPage = () => {
     password: ''
   });
   const [error, setError] = useState('');
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -133,9 +135,12 @@ const LoginPage = () => {
                 <div className="text-center mt-4">
                   <p className="text-muted mb-2">
                     ¿No tienes credenciales?{' '}
-                    <a href="https://rifas-landing.vercel.app" className="text-primary text-decoration-none fw-bold">
+                    <button 
+                      onClick={() => setIsDemoModalOpen(true)}
+                      className="btn btn-link text-primary text-decoration-none fw-bold p-0"
+                    >
                       Solicítalas aquí
-                    </a>
+                    </button>
                   </p>
                 </div>
 
@@ -150,6 +155,11 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+      
+      <DemoRequestModal 
+        isOpen={isDemoModalOpen} 
+        onClose={() => setIsDemoModalOpen(false)} 
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { useRaffle } from '../context/RaffleContext';
 import { formatDate, formatPrice } from '../utils/helpers';
 import { useState } from 'react';
 import heroIllustration from '../assets/hero-illustration.jpg';
+import { insertWaitlistEntry, checkEmailInWaitlist, type WaitlistEntry } from '../config/supabase';
 
 const HomePage = () => {
   const { raffles, buyers, clearAllData } = useRaffle();
@@ -47,18 +48,34 @@ const HomePage = () => {
     setIsSubmitting(true);
     
     try {
-      // Simular envío del formulario
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Verificar si el email ya existe en la waitlist
+      const emailCheck = await checkEmailInWaitlist(formData.email);
       
-      // Guardar en localStorage para simular base de datos
-      const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
-      const newSubmission = {
-        ...formData,
-        id: Date.now(),
-        timestamp: new Date().toISOString()
+      if (emailCheck.exists) {
+        setSubmitStatus('error');
+        window.dispatchEvent(new CustomEvent('show-toast', {
+          detail: {
+            type: 'warning',
+            title: 'Email ya registrado',
+            message: 'Este email ya está en nuestra lista de espera'
+          }
+        }));
+        return;
+      }
+
+      // Preparar datos para la waitlist
+      const waitlistData: Omit<WaitlistEntry, 'id' | 'created_at' | 'updated_at'> = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        organization: formData.organization || undefined,
+        interest: formData.interest as WaitlistEntry['interest'],
+        message: formData.message || undefined,
+        source: 'homepage'
       };
-      submissions.push(newSubmission);
-      localStorage.setItem('contact_submissions', JSON.stringify(submissions));
+
+      // Insertar en la base de datos
+      await insertWaitlistEntry(waitlistData);
       
       setSubmitStatus('success');
       setFormData({
@@ -74,8 +91,10 @@ const HomePage = () => {
       window.dispatchEvent(new CustomEvent('show-toast', {
         detail: {
           type: 'success',
-          title: '¡Mensaje enviado!',
-          message: 'Nos pondremos en contacto contigo pronto'
+          title: '¡Registro exitoso!',
+          message: formData.interest === 'waitlist' 
+            ? 'Te has unido a nuestra lista de espera. Te contactaremos pronto.'
+            : 'Hemos recibido tu solicitud. Nos pondremos en contacto contigo pronto.'
         }
       }));
       

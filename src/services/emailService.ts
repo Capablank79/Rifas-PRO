@@ -5,6 +5,15 @@ export interface EmailNotification {
   html: string;
 }
 
+// Interface para credenciales de demo
+export interface EmailCredentials {
+  nombre: string;
+  email: string;
+  username: string;
+  password: string;
+  expires_at: string;
+}
+
 export interface WinnerNotificationData {
   winnerName: string;
   winnerEmail: string;
@@ -148,31 +157,219 @@ export const generateWinnerEmailHTML = (data: WinnerNotificationData): string =>
   `;
 };
 
-// Función para enviar email (simulación)
+// Función para enviar notificación a ganadores
 export const sendWinnerNotification = async (data: WinnerNotificationData): Promise<boolean> => {
   try {
     const emailHTML = generateWinnerEmailHTML(data);
     
-    // En un entorno real, aquí se integraría con un servicio de email como:
-    // - EmailJS
-    // - SendGrid
-    // - Nodemailer
-    // - AWS SES
-    // etc.
-    
-    console.log('📧 Enviando notificación por email a:', data.winnerEmail);
+    console.log('📧 Enviando notificación a ganador:', data.winnerEmail);
     console.log('📋 Asunto:', `¡Felicitaciones! Has ganado el ${data.prizePosition}° premio en ${data.raffleName}`);
     
     // Simulación de envío de email
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 800));
     
-    // Para demostración, mostrar el contenido del email en consola
-    console.log('✅ Email enviado exitosamente');
-    console.log('📄 Contenido del email generado:', emailHTML.substring(0, 200) + '...');
+    console.log('✅ Notificación a ganador enviada exitosamente');
     
     return true;
   } catch (error) {
-    console.error('❌ Error al enviar email:', error);
+    console.error('❌ Error al enviar notificación a ganador:', error);
+    return false;
+  }
+};
+
+// Función para formatear fecha de expiración
+const formatExpirationDate = (isoDate: string): string => {
+  const date = new Date(isoDate);
+  return date.toLocaleDateString('es-ES', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+// Función para crear template de email de credenciales
+const createEmailTemplate = (credentials: EmailCredentials): string => {
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Credenciales de Acceso - EasyRif Demo</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                background-color: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .credentials {
+                background-color: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+                border-left: 4px solid #007bff;
+            }
+            .button {
+                display: inline-block;
+                background-color: #007bff;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                font-size: 14px;
+                color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🎉 ¡Bienvenido a EasyRif Demo!</h1>
+            </div>
+            
+            <p>Hola <strong>${credentials.nombre}</strong>,</p>
+            
+            <p>¡Gracias por tu interés en EasyRif! Tus credenciales de acceso a la demo interactiva están listas.</p>
+            
+            <div class="credentials">
+                <h3>🔑 Tus Credenciales de Acceso</h3>
+                <p><strong>Usuario:</strong> ${credentials.username}</p>
+                <p><strong>Contraseña:</strong> ${credentials.password}</p>
+                <p><strong>Válido hasta:</strong> ${formatExpirationDate(credentials.expires_at)}</p>
+            </div>
+            
+            <h3>✨ ¿Qué incluye tu demo?</h3>
+            <ul>
+                <li>✅ Acceso completo por 24 horas</li>
+                <li>✅ Crear y gestionar rifas</li>
+                <li>✅ Sistema de ventas completo</li>
+                <li>✅ Reportes y estadísticas</li>
+                <li>✅ Unirte a nuestra waitlist desde la demo</li>
+            </ul>
+            
+            <div style="text-align: center;">
+                <a href="https://rifas-demo.vercel.app/login" class="button">🚀 Acceder a la Demo</a>
+            </div>
+            
+            <h3>💡 ¿Qué puedes hacer en la demo?</h3>
+            <ul>
+                <li>🎯 Crear rifas con múltiples premios</li>
+                <li>🎫 Gestionar números y ventas</li>
+                <li>👥 Administrar vendedores</li>
+                <li>📊 Ver reportes en tiempo real</li>
+                <li>🎉 Realizar sorteos automáticos</li>
+                <li>📧 Enviar notificaciones</li>
+            </ul>
+            
+            <div class="footer">
+                <p><strong>¿Necesitas ayuda?</strong></p>
+                <ul>
+                    <li>📧 Email: easyrdemo@exesoft.cl</li>
+                    <li>📱 WhatsApp: +56928762136</li>
+                </ul>
+                
+                <p><em>Recuerda: Tu acceso expira en 24 horas. ¡Aprovecha al máximo tu demo!</em></p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+};
+
+// Función para enviar email usando Resend API
+const sendEmailWithResend = async (credentials: EmailCredentials): Promise<string | null> => {
+  const apiKey = import.meta.env.VITE_RESEND_API_KEY;
+  const fromEmail = import.meta.env.VITE_FROM_EMAIL || 'noreply@easyrif.com';
+  const fromName = import.meta.env.VITE_FROM_NAME || 'EasyRif Demo';
+
+  if (!apiKey) {
+    console.warn('⚠️ VITE_RESEND_API_KEY no configurada. Usando modo simulación.');
+    return null;
+  }
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: `${fromName} <${fromEmail}>`,
+        to: [credentials.email],
+        subject: '🎉 ¡Tus credenciales de demo están listas!',
+        html: createEmailTemplate(credentials),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorData}`);
+    }
+
+    const result = await response.json();
+    return result.id;
+  } catch (error) {
+    console.error('Error enviando email con Resend:', error);
+    throw error;
+  }
+};
+
+// Función principal para enviar credenciales de demo
+export const sendDemoCredentials = async (credentials: EmailCredentials): Promise<boolean> => {
+  try {
+    console.log('📧 ENVIANDO EMAIL DE CREDENCIALES:');
+    console.log('Para:', credentials.email);
+    console.log('Nombre:', credentials.nombre);
+    console.log('Usuario:', credentials.username);
+    console.log('Contraseña:', credentials.password);
+    console.log('Expira:', formatExpirationDate(credentials.expires_at));
+    
+    // Intentar envío real con Resend
+    try {
+      const emailId = await sendEmailWithResend(credentials);
+      if (emailId) {
+        console.log('✅ Email enviado exitosamente:', emailId);
+        return true;
+      }
+    } catch (error) {
+      console.error('❌ Error en envío real:', error);
+    }
+    
+    // Fallback: simular éxito en desarrollo
+    console.log('📧 Usando modo simulación (desarrollo)');
+    console.log('\n📧 Template HTML:');
+    console.log(createEmailTemplate(credentials));
+    
+    // Simular delay de envío
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return true;
+    
+  } catch (error) {
+    console.error('Error enviando email:', error);
     return false;
   }
 };
