@@ -1,6 +1,6 @@
 # 🎯 EasyRif - Sistema de Gestión de Rifas
 
-Una aplicación web moderna y completa para la gestión de rifas, desarrollada con React, TypeScript y Vite. Permite crear, administrar y realizar sorteos de manera eficiente con una interfaz intuitiva y profesional.
+Una aplicación web moderna y completa para la gestión de rifas, desarrollada con React, TypeScript y Vite. Permite crear, administrar y realizar sorteos de manera eficiente con una interfaz intuitiva y profesional. se debe probar la recepcion del mail
 
 ## ✨ Características Principales
 
