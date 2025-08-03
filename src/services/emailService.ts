@@ -354,19 +354,14 @@ export const sendDemoCredentials = async (credentials: EmailCredentials): Promis
       if (emailId) {
         console.log('✅ Email enviado exitosamente:', emailId);
         return true;
+      } else {
+        console.log('❌ No se pudo enviar el email: API Key no configurada');
+        return false;
       }
     } catch (error) {
       console.error('❌ Error en envío real:', error);
+      return false;
     }
-    
-    // Fallback: simular éxito en desarrollo
-    console.log('📧 Usando modo simulación (desarrollo)');
-    console.log('\n📧 Template HTML:');
-    console.log(createEmailTemplate(credentials));
-    
-    // Simular delay de envío
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return true;
     
   } catch (error) {
     console.error('Error enviando email:', error);
