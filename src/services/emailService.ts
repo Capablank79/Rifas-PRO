@@ -299,42 +299,45 @@ const createEmailTemplate = (credentials: EmailCredentials): string => {
   `;
 };
 
-// Función para enviar email usando Resend API
+// Función para enviar email usando nuestra API route (evita problemas de CORS)
 const sendEmailWithResend = async (credentials: EmailCredentials): Promise<string | null> => {
-  const apiKey = import.meta.env.VITE_RESEND_API_KEY;
   const fromEmail = import.meta.env.VITE_FROM_EMAIL || 'noreply@easyrif.com';
   const fromName = import.meta.env.VITE_FROM_NAME || 'EasyRif Demo';
 
-  if (!apiKey) {
-    console.warn('⚠️ VITE_RESEND_API_KEY no configurada. Usando modo simulación.');
-    return null;
-  }
-
   try {
-    const response = await fetch('https://api.resend.com/emails', {
+    // Usar nuestra API route en lugar de llamar directamente a Resend
+    const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: `${fromName} <${fromEmail}>`,
-        to: [credentials.email],
+        to: credentials.email,
         subject: '🎉 ¡Tus credenciales de demo están listas!',
         html: createEmailTemplate(credentials),
-      }),
+        from: `${fromName} <${fromEmail}>`
+      })
     });
 
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorData}`);
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Email enviado exitosamente:', result.emailId);
+      return result.emailId;
+    } else {
+      const error = await response.json();
+      console.error('❌ Error enviando email:', error);
+      
+      // Mostrar mensaje específico según el tipo de error
+      if (error.details && error.details.message) {
+        console.error('❌ Detalle del error:', error.details.message);
+      }
+      
+      return null;
     }
-
-    const result = await response.json();
-    return result.id;
   } catch (error) {
-    console.error('Error enviando email con Resend:', error);
-    throw error;
+    console.error('❌ Error en la petición de email:', error);
+    console.error('❌ No se pudo enviar el email: Error de conexión');
+    return null;
   }
 };
 

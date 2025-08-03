@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ToastContainer from './components/ToastContainer';
 import ProtectedRoute from './components/ProtectedRoute';
+import DiagnosticPanel from './components/DiagnosticPanel';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import SellersPage from './pages/SellersPage';
@@ -116,6 +117,9 @@ function App() {
               </div>
             ))}
           </div>
+          
+          {/* Diagnostic Panel */}
+          <DiagnosticPanel />
         </div>
       </RaffleProvider>
     </AuthProvider>
