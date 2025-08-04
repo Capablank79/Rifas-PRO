@@ -669,10 +669,10 @@ export const generateWaitlistConfirmationHTML = (data: WaitlistConfirmationData)
                 
                 <div class="info-section">
                     <h3>⏰ ¿Qué sigue?</h3>
-                    <p>Nuestro equipo revisará tu solicitud y se pondrá en contacto contigo en las próximas <strong>24-48 horas</strong>. Mientras tanto, no dudes en explorar la demo y familiarizarte con la plataforma.</p>
+                    <p>Nuestro equipo revisará tu solicitud y se pondrá en contacto contigo <strong>próximamente</strong>. Mientras tanto, no dudes en explorar la demo y familiarizarte con la plataforma.</p>
                 </div>
                 
-                <p>Si tienes alguna pregunta urgente, puedes responder directamente a este correo.</p>
+                <p>Si tienes alguna pregunta urgente, puedes responder directamente a este correo: <strong>easyrdemo@exesoft.cl</strong></p>
                 
                 <p>¡Gracias por confiar en EasyRif para tus rifas!</p>
                 
