@@ -302,7 +302,8 @@ const createEmailTemplate = (credentials: EmailCredentials): string => {
 // Función para enviar email usando nuestra API route (evita problemas de CORS)
 const sendEmailWithResend = async (credentials: EmailCredentials): Promise<string | null> => {
   // No necesitamos variables VITE_ porque usamos la API route que tiene acceso a las variables del servidor
-  const fromEmail = 'noreply@easyrif.com';
+  // Usar email verificado en Resend (el del propietario)
+  const fromEmail = 'jlloyola@gmail.com';
   const fromName = 'EasyRif Demo';
 
   try {
