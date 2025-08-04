@@ -4,6 +4,7 @@ import { formatDate, formatPrice } from '../utils/helpers';
 import { useState } from 'react';
 import heroIllustration from '../assets/hero-illustration.jpg';
 import { insertWaitlistEntry, checkEmailInWaitlist, type WaitlistEntry } from '../config/supabase';
+import { sendWaitlistConfirmation, type WaitlistConfirmationData } from '../services/emailService';
 
 const HomePage = () => {
   const { raffles, buyers, clearAllData } = useRaffle();
@@ -77,6 +78,23 @@ const HomePage = () => {
       // Insertar en la base de datos
       await insertWaitlistEntry(waitlistData);
       
+      // Enviar correo de confirmación automático
+      console.log('📧 Enviando correo de confirmación de waitlist...');
+      const emailData: WaitlistConfirmationData = {
+        name: formData.name,
+        email: formData.email,
+        interest: formData.interest,
+        message: formData.message || undefined
+      };
+      
+      const emailSent = await sendWaitlistConfirmation(emailData);
+      
+      if (emailSent) {
+        console.log('✅ Correo de confirmación enviado exitosamente');
+      } else {
+        console.warn('⚠️ No se pudo enviar el correo de confirmación, pero el registro fue exitoso');
+      }
+      
       setSubmitStatus('success');
       setFormData({
         name: '',
@@ -92,9 +110,11 @@ const HomePage = () => {
         detail: {
           type: 'success',
           title: '¡Registro exitoso!',
-          message: formData.interest === 'waitlist' 
-            ? 'Te has unido a nuestra lista de espera. Te contactaremos pronto.'
-            : 'Hemos recibido tu solicitud. Nos pondremos en contacto contigo pronto.'
+          message: emailSent 
+            ? 'Te has registrado exitosamente. Revisa tu correo para más información.'
+            : (formData.interest === 'waitlist' 
+              ? 'Te has unido a nuestra lista de espera. Te contactaremos pronto.'
+              : 'Hemos recibido tu solicitud. Nos pondremos en contacto contigo pronto.')
         }
       }));
       

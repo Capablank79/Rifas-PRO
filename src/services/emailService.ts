@@ -38,6 +38,13 @@ export interface VendorNotificationData {
   totalSales?: number;
 }
 
+export interface WaitlistConfirmationData {
+  name: string;
+  email: string;
+  interest: string;
+  message?: string;
+}
+
 // Función para generar el HTML del email de notificación
 export const generateWinnerEmailHTML = (data: WinnerNotificationData): string => {
   return `
@@ -519,6 +526,246 @@ export const sendVendorNotification = async (data: VendorNotificationData): Prom
     return true;
   } catch (error) {
     console.error('❌ Error al enviar notificación a vendedor:', error);
+    return false;
+  }
+};
+
+// Función para generar el HTML del email de confirmación de waitlist
+export const generateWaitlistConfirmationHTML = (data: WaitlistConfirmationData): string => {
+  const interestLabels: { [key: string]: string } = {
+    'demo': 'Solicitar demo personalizada',
+    'waitlist': 'Unirme a la lista de espera',
+    'feedback': 'Compartir feedback sobre la demo',
+    'partnership': 'Oportunidades de colaboración',
+    'pricing': 'Información sobre precios',
+    'other': 'Otro'
+  };
+
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>¡Gracias por tu interés en EasyRif!</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f8f9fa;
+            }
+            .container {
+                background: white;
+                border-radius: 12px;
+                padding: 40px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #e9ecef;
+            }
+            .logo {
+                font-size: 28px;
+                font-weight: bold;
+                color: #0d6efd;
+                margin-bottom: 10px;
+            }
+            .title {
+                color: #198754;
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+            .content {
+                margin-bottom: 30px;
+            }
+            .highlight-box {
+                background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+                border-left: 4px solid #0d6efd;
+                padding: 20px;
+                margin: 20px 0;
+                border-radius: 8px;
+            }
+            .info-section {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+            }
+            .button {
+                display: inline-block;
+                background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+                color: white;
+                padding: 15px 30px;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: bold;
+                margin: 10px 5px;
+                transition: transform 0.2s;
+            }
+            .button:hover {
+                transform: translateY(-2px);
+            }
+            .footer {
+                text-align: center;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #e9ecef;
+                color: #6c757d;
+                font-size: 14px;
+            }
+            ul {
+                padding-left: 20px;
+            }
+            li {
+                margin-bottom: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">🎯 EasyRif</div>
+                <h1 class="title">¡Gracias por tu interés!</h1>
+                <p>Hemos recibido tu solicitud exitosamente</p>
+            </div>
+            
+            <div class="content">
+                <p>Hola <strong>${data.name}</strong>,</p>
+                
+                <p>¡Muchas gracias por contactarnos! Hemos recibido tu solicitud sobre: <strong>${interestLabels[data.interest] || data.interest}</strong></p>
+                
+                ${data.message ? `
+                <div class="info-section">
+                    <h3>📝 Tu mensaje:</h3>
+                    <p><em>"${data.message}"</em></p>
+                </div>
+                ` : ''}
+                
+                <div class="highlight-box">
+                    <h3>🚀 ¿Ya probaste nuestra demo?</h3>
+                    <p>Mientras procesamos tu solicitud, puedes explorar todas las funcionalidades de EasyRif en nuestra demo interactiva:</p>
+                    
+                    <div style="text-align: center;">
+                        <a href="https://rifas-demo.vercel.app/login" class="button">🎯 Probar Demo Ahora</a>
+                    </div>
+                </div>
+                
+                <h3>💡 ¿Qué puedes hacer en EasyRif?</h3>
+                <ul>
+                    <li>🎯 <strong>Crear rifas</strong> con múltiples premios y configuraciones flexibles</li>
+                    <li>🎫 <strong>Gestionar números</strong> y controlar ventas en tiempo real</li>
+                    <li>👥 <strong>Administrar vendedores</strong> y asignar comisiones</li>
+                    <li>📊 <strong>Ver reportes detallados</strong> de ventas y estadísticas</li>
+                    <li>🎉 <strong>Realizar sorteos automáticos</strong> con transparencia total</li>
+                    <li>📧 <strong>Enviar notificaciones</strong> automáticas a ganadores</li>
+                    <li>💰 <strong>Integración con pagos</strong> para facilitar las transacciones</li>
+                </ul>
+                
+                <div class="info-section">
+                    <h3>⏰ ¿Qué sigue?</h3>
+                    <p>Nuestro equipo revisará tu solicitud y se pondrá en contacto contigo en las próximas <strong>24-48 horas</strong>. Mientras tanto, no dudes en explorar la demo y familiarizarte con la plataforma.</p>
+                </div>
+                
+                <p>Si tienes alguna pregunta urgente, puedes responder directamente a este correo.</p>
+                
+                <p>¡Gracias por confiar en EasyRif para tus rifas!</p>
+                
+                <p>Saludos cordiales,<br>
+                <strong>El equipo de EasyRif</strong></p>
+            </div>
+            
+            <div class="footer">
+                <p>Este es un mensaje automático de confirmación.</p>
+                <p>EasyRif - La plataforma más fácil para gestionar tus rifas</p>
+                <p>© 2024 EasyRif. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+};
+
+// Función para enviar correo de confirmación de waitlist usando Resend
+const sendWaitlistEmailWithResend = async (data: WaitlistConfirmationData): Promise<string | null> => {
+  try {
+    const emailHTML = generateWaitlistConfirmationHTML(data);
+    
+    // No necesitamos variables VITE_ porque usamos la API route que tiene acceso a las variables del servidor
+    // Usar email verificado en Resend
+    const fromEmail = 'onboarding@resend.dev';
+    const fromName = 'EasyRif';
+    
+    const emailData = {
+      from: fromEmail,
+      fromName: fromName,
+      to: data.email,
+      subject: '¡Gracias por tu interés en EasyRif! 🎯',
+      html: emailHTML
+    };
+    
+    console.log('📧 Enviando confirmación de waitlist a:', data.email);
+    console.log('📋 Datos del email:', {
+      from: `${fromName} <${fromEmail}>`,
+      to: data.email,
+      subject: emailData.subject
+    });
+    
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Error en la respuesta de la API:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Respuesta de la API de email:', result);
+    
+    return result.id || 'email-sent';
+  } catch (error) {
+    console.error('❌ Error al enviar email de confirmación de waitlist:', error);
+    return null;
+  }
+};
+
+// Función principal para enviar confirmación de waitlist
+export const sendWaitlistConfirmation = async (data: WaitlistConfirmationData): Promise<boolean> => {
+  try {
+    console.log('📧 Iniciando envío de confirmación de waitlist...');
+    
+    const emailId = await sendWaitlistEmailWithResend(data);
+    
+    if (emailId) {
+      console.log('✅ Confirmación de waitlist enviada exitosamente. ID:', emailId);
+      return true;
+    } else {
+      console.error('❌ No se pudo enviar la confirmación de waitlist');
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error al enviar confirmación de waitlist:', error);
+    
+    // Si no hay API Key configurada, mostrar mensaje específico
+    if (error instanceof Error && error.message.includes('API Key')) {
+      console.warn('⚠️ API Key de Resend no configurada. El email no se enviará en producción.');
+    }
+    
     return false;
   }
 };
