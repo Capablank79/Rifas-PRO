@@ -1,7 +1,7 @@
 // API Route para Vercel - Envío de emails con cPanel SMTP usando Nodemailer
 // Este archivo debe estar en /api/send-email.js para funcionar como serverless function
 
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
   // Configurar CORS
