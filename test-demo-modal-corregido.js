@@ -16,11 +16,24 @@ async function testModalDemoCorregido() {
     const envResponse = await fetch('https://rifas-demo.vercel.app/api/send-email?check=env');
     const envResult = await envResponse.json();
     
-    console.log('Variables de entorno en servidor:');
+    console.log('Variables de entorno en servidor (SMTP):');
     Object.entries(envResult.envStatus).forEach(([key, value]) => {
       const status = value ? '✅' : '❌';
       console.log(`${status} ${key}: ${value}`);
     });
+    
+    // Verificar que todas las variables SMTP estén configuradas
+    const smtpVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'];
+    const smtpConfigured = smtpVars.every(varName => envResult.envStatus[varName]);
+    
+    if (!smtpConfigured) {
+      console.log('\n⚠️ ADVERTENCIA: Faltan variables SMTP. Configurar en Vercel:');
+      smtpVars.forEach(varName => {
+        if (!envResult.envStatus[varName]) {
+          console.log(`❌ ${varName}: Falta configurar`);
+        }
+      });
+    }
     
     // PASO 3: Simular envío del modal de demo con la nueva configuración
     console.log('\n📧 PASO 3: Simulando envío del modal de demo corregido...');

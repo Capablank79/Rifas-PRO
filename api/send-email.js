@@ -1,5 +1,7 @@
-// API Route para Vercel - Envío de emails con Resend
+// API Route para Vercel - Envío de emails con cPanel SMTP usando Nodemailer
 // Este archivo debe estar en /api/send-email.js para funcionar como serverless function
+
+import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
   // Configurar CORS
@@ -15,7 +17,10 @@ export default async function handler(req, res) {
   // Manejar verificación de variables de entorno
   if (req.method === 'GET' && req.query.check === 'env') {
     const envStatus = {
-      RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+      SMTP_HOST: !!process.env.SMTP_HOST,
+      SMTP_PORT: !!process.env.SMTP_PORT,
+      SMTP_USER: !!process.env.SMTP_USER,
+      SMTP_PASS: !!process.env.SMTP_PASS,
       FROM_EMAIL: !!process.env.FROM_EMAIL,
       FROM_NAME: !!process.env.FROM_NAME
     };
@@ -41,16 +46,39 @@ export default async function handler(req, res) {
     }
 
     // Obtener variables de entorno del servidor
-    const resendApiKey = process.env.RESEND_API_KEY;
-    const defaultFromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = parseInt(process.env.SMTP_PORT) || 465;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    const defaultFromEmail = process.env.FROM_EMAIL || smtpUser;
     const defaultFromName = process.env.FROM_NAME || 'EasyRif Demo';
 
-    if (!resendApiKey) {
-      console.error('❌ RESEND_API_KEY no configurada en el servidor');
+    // Validar configuración SMTP
+    if (!smtpHost || !smtpUser || !smtpPass) {
+      console.error('❌ Configuración SMTP incompleta');
       return res.status(500).json({ 
         error: 'Configuración de email no disponible',
-        details: 'API Key no configurada'
+        details: 'Configuración SMTP incompleta. Verifica SMTP_HOST, SMTP_USER y SMTP_PASS'
       });
+    }
+
+    // Crear transporter de Nodemailer
+    const transporter = nodemailer.createTransporter({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465, // true para puerto 465, false para otros puertos
+      auth: {
+        user: smtpUser,
+        pass: smtpPass
+      }
+    });
+
+    // Verificar conexión SMTP (opcional, pero recomendado)
+    try {
+      await transporter.verify();
+      console.log('✅ Conexión SMTP verificada correctamente');
+    } catch (verifyError) {
+      console.warn('⚠️ Advertencia en verificación SMTP:', verifyError.message);
     }
 
     // Preparar datos del email
@@ -61,44 +89,47 @@ export default async function handler(req, res) {
       html: html
     };
 
-    console.log('📧 Enviando email desde servidor:', {
+    console.log('📧 Enviando email desde servidor SMTP:', {
       to: emailData.to,
       subject: emailData.subject,
-      from: emailData.from
+      from: emailData.from,
+      host: smtpHost,
+      port: smtpPort
     });
 
-    // Enviar email usando Resend API
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(emailData)
+    // Enviar email usando Nodemailer
+    const info = await transporter.sendMail(emailData);
+
+    console.log('✅ Email enviado exitosamente:', info.messageId);
+    return res.status(200).json({
+      success: true,
+      emailId: info.messageId,
+      message: 'Email enviado correctamente',
+      response: info.response
     });
-
-    const responseData = await response.json();
-
-    if (response.ok) {
-      console.log('✅ Email enviado exitosamente:', responseData.id);
-      return res.status(200).json({
-        success: true,
-        emailId: responseData.id,
-        message: 'Email enviado correctamente'
-      });
-    } else {
-      console.error('❌ Error de Resend API:', responseData);
-      return res.status(response.status).json({
-        error: 'Error al enviar email',
-        details: responseData
-      });
-    }
 
   } catch (error) {
     console.error('❌ Error en API de envío:', error);
+    
+    let errorMessage = 'Error interno del servidor';
+    let errorDetails = error.message;
+    
+    // Clasificar errores SMTP comunes
+    if (error.code === 'EAUTH') {
+      errorMessage = 'Error de autenticación SMTP';
+      errorDetails = 'Credenciales SMTP incorrectas. Verifica SMTP_USER y SMTP_PASS';
+    } else if (error.code === 'ECONNREFUSED') {
+      errorMessage = 'Error de conexión SMTP';
+      errorDetails = 'No se pudo conectar al servidor SMTP. Verifica host y puerto';
+    } else if (error.code === 'ETIMEDOUT') {
+      errorMessage = 'Timeout de conexión SMTP';
+      errorDetails = 'El servidor SMTP no responde. Verifica la configuración';
+    }
+    
     return res.status(500).json({
-      error: 'Error interno del servidor',
-      details: error.message
+      error: errorMessage,
+      details: errorDetails,
+      code: error.code
     });
   }
 }
