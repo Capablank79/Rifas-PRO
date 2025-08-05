@@ -54,14 +54,20 @@ const HomePage = () => {
       
       if (emailCheck.exists) {
         setSubmitStatus('error');
+        // Mensaje actualizado para email duplicado
         window.dispatchEvent(new CustomEvent('show-toast', {
           detail: {
             type: 'warning',
             title: 'Email ya registrado',
-            message: 'Este email ya está en nuestra lista de espera'
+            message: 'Este correo ya se encuentra registrado para la lista de Espera'
           }
         }));
         return;
+      }
+
+      // Si hay error en la verificación pero no existe, continuar con advertencia
+      if (emailCheck.error) {
+        console.warn('⚠️ No se pudo verificar si el email existe, continuando con el registro:', emailCheck.error);
       }
 
       // Preparar datos para la waitlist
@@ -781,7 +787,7 @@ const HomePage = () => {
                           <div className="alert alert-danger d-flex align-items-center" role="alert">
                             <i className="bi bi-exclamation-triangle me-2"></i>
                             <div>
-                              <strong>Error al enviar el mensaje.</strong> Por favor, inténtalo de nuevo.
+                              <strong>Este correo ya se encuentra registrado para la lista de Espera</strong>
                             </div>
                           </div>
                         </div>

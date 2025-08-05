@@ -306,13 +306,13 @@ const createEmailTemplate = (credentials: EmailCredentials): string => {
   `;
 };
 
-// Función para enviar email usando nuestra API route (evita problemas de CORS)
-const sendEmailWithResend = async (credentials: EmailCredentials): Promise<string | null> => {
+// Función para enviar email usando nuestra API route con SMTP
+const sendEmailWithSMTP = async (credentials: EmailCredentials): Promise<string | null> => {
   // No usar variables VITE_ aquí - el servidor usará sus propias variables FROM_EMAIL y FROM_NAME
   // Las variables del frontend no deben interferir con la configuración del servidor
 
   try {
-    // Usar nuestra API route en lugar de llamar directamente a Resend
+    // Usar nuestra API route que utiliza SMTP con Nodemailer
     const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {
@@ -328,11 +328,11 @@ const sendEmailWithResend = async (credentials: EmailCredentials): Promise<strin
 
     if (response.ok) {
       const result = await response.json();
-      console.log('✅ Email enviado exitosamente:', result.emailId);
+      console.log('✅ Email enviado exitosamente vía SMTP:', result.emailId);
       return result.emailId;
     } else {
       const error = await response.json();
-      console.error('❌ Error enviando email:', error);
+      console.error('❌ Error enviando email vía SMTP:', error);
       
       // Mostrar mensaje específico según el tipo de error
       if (error.details && error.details.message) {
@@ -351,25 +351,25 @@ const sendEmailWithResend = async (credentials: EmailCredentials): Promise<strin
 // Función principal para enviar credenciales de demo
 export const sendDemoCredentials = async (credentials: EmailCredentials): Promise<boolean> => {
   try {
-    console.log('📧 ENVIANDO EMAIL DE CREDENCIALES:');
+    console.log('📧 ENVIANDO EMAIL DE CREDENCIALES VÍA SMTP:');
     console.log('Para:', credentials.email);
     console.log('Nombre:', credentials.nombre);
     console.log('Usuario:', credentials.username);
     console.log('Contraseña:', credentials.password);
     console.log('Expira:', formatExpirationDate(credentials.expires_at));
     
-    // Intentar envío real con Resend
+    // Envío vía SMTP con Nodemailer
     try {
-      const emailId = await sendEmailWithResend(credentials);
+      const emailId = await sendEmailWithSMTP(credentials);
       if (emailId) {
-        console.log('✅ Email enviado exitosamente:', emailId);
+        console.log('✅ Email enviado exitosamente vía SMTP:', emailId);
         return true;
       } else {
-        console.log('❌ No se pudo enviar el email: API Key no configurada');
+        console.log('❌ No se pudo enviar el email: Configuración SMTP no disponible');
         return false;
       }
     } catch (error) {
-      console.error('❌ Error en envío real:', error);
+      console.error('❌ Error en envío SMTP:', error);
       return false;
     }
     
@@ -689,8 +689,8 @@ export const generateWaitlistConfirmationHTML = (data: WaitlistConfirmationData)
   `;
 };
 
-// Función para enviar correo de confirmación de waitlist usando Resend
-const sendWaitlistEmailWithResend = async (data: WaitlistConfirmationData): Promise<string | null> => {
+// Función para enviar correo de confirmación de waitlist usando SMTP
+const sendWaitlistEmailWithSMTP = async (data: WaitlistConfirmationData): Promise<string | null> => {
   try {
     const emailHTML = generateWaitlistConfirmationHTML(data);
     
@@ -704,7 +704,7 @@ const sendWaitlistEmailWithResend = async (data: WaitlistConfirmationData): Prom
       // No enviar 'from' - el servidor usará FROM_EMAIL y FROM_NAME de sus variables de entorno
     };
     
-    console.log('📧 Enviando confirmación de waitlist a:', data.email);
+    console.log('📧 Enviando confirmación de waitlist vía SMTP a:', data.email);
     console.log('📋 Datos del email:', {
       to: data.email,
       subject: emailData.subject
@@ -720,7 +720,7 @@ const sendWaitlistEmailWithResend = async (data: WaitlistConfirmationData): Prom
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Error en la respuesta de la API:', {
+      console.error('❌ Error en la respuesta de la API SMTP:', {
         status: response.status,
         statusText: response.statusText,
         body: errorText
@@ -729,11 +729,11 @@ const sendWaitlistEmailWithResend = async (data: WaitlistConfirmationData): Prom
     }
     
     const result = await response.json();
-    console.log('✅ Respuesta de la API de email:', result);
+    console.log('✅ Respuesta de la API de email SMTP:', result);
     
     return result.id || 'email-sent';
   } catch (error) {
-    console.error('❌ Error al enviar email de confirmación de waitlist:', error);
+    console.error('❌ Error al enviar email de confirmación de waitlist vía SMTP:', error);
     return null;
   }
 };
@@ -741,25 +741,31 @@ const sendWaitlistEmailWithResend = async (data: WaitlistConfirmationData): Prom
 // Función principal para enviar confirmación de waitlist
 export const sendWaitlistConfirmation = async (data: WaitlistConfirmationData): Promise<boolean> => {
   try {
-    console.log('📧 Iniciando envío de confirmación de waitlist...');
+    console.log('📧 ENVIANDO CONFIRMACIÓN DE WAITLIST VÍA SMTP:');
+    console.log('Para:', data.email);
+    console.log('Nombre:', data.name);
+    console.log('Interés:', data.interest);
+    if (data.message) {
+      console.log('Mensaje:', data.message);
+    }
     
-    const emailId = await sendWaitlistEmailWithResend(data);
-    
-    if (emailId) {
-      console.log('✅ Confirmación de waitlist enviada exitosamente. ID:', emailId);
-      return true;
-    } else {
-      console.error('❌ No se pudo enviar la confirmación de waitlist');
+    // Envío vía SMTP con Nodemailer
+    try {
+      const emailId = await sendWaitlistEmailWithSMTP(data);
+      if (emailId) {
+        console.log('✅ Email de confirmación enviado exitosamente vía SMTP:', emailId);
+        return true;
+      } else {
+        console.log('❌ No se pudo enviar el email de confirmación: Configuración SMTP no disponible');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Error en envío SMTP de confirmación:', error);
       return false;
     }
+    
   } catch (error) {
-    console.error('❌ Error al enviar confirmación de waitlist:', error);
-    
-    // Si no hay API Key configurada, mostrar mensaje específico
-    if (error instanceof Error && error.message.includes('API Key')) {
-      console.warn('⚠️ API Key de Resend no configurada. El email no se enviará en producción.');
-    }
-    
+    console.error('Error enviando confirmación de waitlist:', error);
     return false;
   }
 };

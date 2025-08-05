@@ -79,29 +79,37 @@ export const validateDemoUser = async (username: string): Promise<CredentialVali
   }
 
   try {
-    const { data, error } = await supabase.rpc('validate_demo_user_by_username', {
-      p_username: username
-    })
+    console.log('🔍 Validando usuario:', username)
+    
+    // Usar consulta SQL directa en lugar de RPC
+    const { data, error } = await supabase
+      .from('demo_requests')
+      .select('id, username, email, nombre, expires_at')
+      .eq('username', username)
+      .not('username', 'is', null)
+      .gte('expires_at', new Date().toISOString()) // Solo credenciales no expiradas
+      .single()
 
     if (error) {
       console.error('Error validating user:', error)
       return { isValid: false }
     }
 
-    if (data && data.length > 0) {
-      const user = data[0]
+    if (data) {
+      console.log('✅ Usuario válido encontrado:', data.username)
       return {
         isValid: true,
         userData: {
-          id: user.id.toString(),
-          username: user.username,
-          email: user.email,
-          nombre: user.nombre,
-          expires_at: user.expires_at
+          id: data.id.toString(),
+          username: data.username,
+          email: data.email,
+          nombre: data.nombre,
+          expires_at: data.expires_at
         }
       }
     }
 
+    console.log('❌ Usuario no encontrado o expirado')
     return { isValid: false }
   } catch (error) {
     console.error('Error during user validation:', error)
@@ -133,30 +141,39 @@ export const validateDemoCredentials = async (username: string, password: string
   }
 
   try {
-    const { data, error } = await supabase.rpc('validate_demo_credentials', {
-      p_username: username,
-      p_password: password
-    })
+    console.log('🔍 Validando credenciales para usuario:', username)
+    
+    // Usar consulta SQL directa en lugar de RPC
+    const { data, error } = await supabase
+      .from('demo_requests')
+      .select('id, username, password, email, nombre, expires_at')
+      .eq('username', username)
+      .eq('password', password)
+      .not('username', 'is', null)
+      .not('password', 'is', null)
+      .gte('expires_at', new Date().toISOString()) // Solo credenciales no expiradas
+      .single()
 
     if (error) {
       console.error('Error validating credentials:', error)
       return { isValid: false }
     }
 
-    if (data && data.length > 0) {
-      const user = data[0]
+    if (data) {
+      console.log('✅ Credenciales válidas para usuario:', data.username)
       return {
         isValid: true,
         userData: {
-          id: user.id.toString(),
-          username: user.username,
-          email: user.email,
-          nombre: user.nombre,
-          expires_at: user.expires_at
+          id: data.id.toString(),
+          username: data.username,
+          email: data.email,
+          nombre: data.nombre,
+          expires_at: data.expires_at
         }
       }
     }
 
+    console.log('❌ Credenciales inválidas o expiradas')
     return { isValid: false }
   } catch (error) {
     console.error('Error during credential validation:', error)
@@ -336,18 +353,25 @@ export const checkEmailInWaitlist = async (email: string) => {
     return { exists: false }
   }
 
-  const { data, error } = await supabase
-    .from('waitlist')
-    .select('id, email')
-    .eq('email', email)
-    .single()
+  try {
+    const { data, error } = await supabase
+      .from('waitlist')
+      .select('id, email')
+      .eq('email', email)
+      .single()
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-    console.error('Error checking email in waitlist:', error)
-    throw error
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error checking email in waitlist:', error)
+      // En lugar de lanzar error, retornar que no existe para permitir continuar
+      return { exists: false, error: error.message }
+    }
+
+    return { exists: !!data }
+  } catch (error) {
+    console.error('Error de conexión al verificar email en waitlist:', error)
+    // En caso de error de conexión, permitir continuar asumiendo que no existe
+    return { exists: false, error: 'Error de conexión' }
   }
-
-  return { exists: !!data }
 }
 
 // Función para obtener estadísticas de waitlist
