@@ -308,10 +308,8 @@ const createEmailTemplate = (credentials: EmailCredentials): string => {
 
 // Función para enviar email usando nuestra API route (evita problemas de CORS)
 const sendEmailWithResend = async (credentials: EmailCredentials): Promise<string | null> => {
-  // No necesitamos variables VITE_ porque usamos la API route que tiene acceso a las variables del servidor
-  // Usar email verificado en Resend (el del propietario)
-  const fromEmail = 'onboarding@resend.dev';
-  const fromName = 'EasyRif Demo';
+  // No usar variables VITE_ aquí - el servidor usará sus propias variables FROM_EMAIL y FROM_NAME
+  // Las variables del frontend no deben interferir con la configuración del servidor
 
   try {
     // Usar nuestra API route en lugar de llamar directamente a Resend
@@ -323,8 +321,8 @@ const sendEmailWithResend = async (credentials: EmailCredentials): Promise<strin
       body: JSON.stringify({
         to: credentials.email,
         subject: '🎉 ¡Tus credenciales de demo están listas!',
-        html: createEmailTemplate(credentials),
-        from: `${fromName} <${fromEmail}>`
+        html: createEmailTemplate(credentials)
+        // No enviar 'from' - el servidor usará FROM_EMAIL y FROM_NAME de sus variables de entorno
       })
     });
 
@@ -696,22 +694,18 @@ const sendWaitlistEmailWithResend = async (data: WaitlistConfirmationData): Prom
   try {
     const emailHTML = generateWaitlistConfirmationHTML(data);
     
-    // No necesitamos variables VITE_ porque usamos la API route que tiene acceso a las variables del servidor
-    // Usar email verificado en Resend
-    const fromEmail = 'onboarding@resend.dev';
-    const fromName = 'EasyRif';
+    // No usar variables VITE_ aquí - el servidor usará sus propias variables FROM_EMAIL y FROM_NAME
+    // Las variables del frontend no deben interferir con la configuración del servidor
     
     const emailData = {
-      from: fromEmail,
-      fromName: fromName,
       to: data.email,
       subject: '¡Gracias por tu interés en EasyRif! 🎯',
       html: emailHTML
+      // No enviar 'from' - el servidor usará FROM_EMAIL y FROM_NAME de sus variables de entorno
     };
     
     console.log('📧 Enviando confirmación de waitlist a:', data.email);
     console.log('📋 Datos del email:', {
-      from: `${fromName} <${fromEmail}>`,
       to: data.email,
       subject: emailData.subject
     });
