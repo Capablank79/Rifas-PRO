@@ -591,7 +591,7 @@ const HomePage = () => {
 
             {raffles.length > 6 && (
               <div className="text-center mt-4">
-                <Link to="/dashboard" className="btn btn-outline-primary">
+                <Link to="/" className="btn btn-outline-primary">
                   Ver Todas las Rifas
                 </Link>
               </div>
@@ -850,6 +850,214 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Planes de Suscripción */}
+      <section className="py-5" style={{ background: 'hsl(228, 35%, 97%)' }}>
+        <div className="container">
+          {/* Header */}
+          <div className="text-center mb-5">
+            <div className="d-inline-flex align-items-center px-3 py-2 rounded-pill mb-4" style={{
+              background: 'hsl(247, 84%, 57%, 0.1)',
+              color: 'var(--easyreef-primary)',
+              fontSize: '0.875rem',
+              fontWeight: '500'
+            }}>
+              <i className="bi bi-stars me-2"></i>
+              Planes Disponibles
+            </div>
+            <h2 className="display-5 fw-bold mb-4">
+              Elige el plan que{" "}
+              <span style={{
+                background: 'var(--easyreef-gradient-primary)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
+                mejor se adapte
+              </span>{" "}
+              a tus necesidades
+            </h2>
+            <p className="fs-5 text-muted mx-auto" style={{ maxWidth: '700px' }}>
+              Ofrecemos diferentes opciones para que puedas gestionar tus rifas de manera profesional, sin importar el tamaño de tu organización
+            </p>
+          </div>
+
+          <div className="row g-4 justify-content-center">
+            {/* Plan Free */}
+            <div className="col-lg-4 col-md-6">
+              <div className="card h-100 border-0 shadow-sm">
+                <div className="card-header text-center py-4 border-0" style={{ background: 'rgba(102, 126, 234, 0.1)' }}>
+                  <h3 className="fw-bold mb-0">Free</h3>
+                  <div className="d-flex justify-content-center align-items-baseline mt-3">
+                    <span className="display-5 fw-bold">$0</span>
+                    <span className="text-muted ms-1">/mes</span>
+                  </div>
+                  <p className="text-muted mt-2">Para comenzar</p>
+                </div>
+                <div className="card-body p-4">
+                  <ul className="list-unstyled mb-4">
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>1 rifa</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Máximo 100 números</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Máximo 5 premios</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Precio hasta $1.000/número</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center text-muted">
+                      <i className="bi bi-x-circle-fill text-muted me-2"></i>
+                      <span>Carga masiva de vendedores</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center text-muted">
+                      <i className="bi bi-x-circle-fill text-muted me-2"></i>
+                      <span>Rifas ilimitadas</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="card-footer bg-white border-0 p-4 text-center">
+                  <button className="btn btn-outline-primary btn-lg w-100" style={{
+                    borderRadius: '12px',
+                    padding: '12px 24px',
+                    fontWeight: '600',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <i className="bi bi-download me-2"></i>
+                    Obtener Gratis
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Plan Plata */}
+            <div className="col-lg-4 col-md-6">
+              <div className="card h-100 border-0 shadow-lg" style={{ transform: 'translateY(-10px)' }}>
+                <div className="position-absolute top-0 start-50 translate-middle">
+                  <span className="badge rounded-pill" style={{
+                    background: 'var(--easyreef-gradient-primary)',
+                    padding: '8px 16px',
+                    fontSize: '0.8rem',
+                    fontWeight: '600'
+                  }}>
+                    <i className="bi bi-star-fill me-1"></i>
+                    RECOMENDADO
+                  </span>
+                </div>
+                <div className="card-header text-center py-4 border-0" style={{ background: 'rgba(102, 126, 234, 0.2)' }}>
+                  <h3 className="fw-bold mb-0">Plata</h3>
+                  <div className="d-flex justify-content-center align-items-baseline mt-3">
+                    <span className="display-5 fw-bold">$19.990</span>
+                    <span className="text-muted ms-1">/mes</span>
+                  </div>
+                  <p className="text-muted mt-2">Para organizaciones medianas</p>
+                </div>
+                <div className="card-body p-4">
+                  <ul className="list-unstyled mb-4">
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>5 rifas</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>200 números/rifa</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Premios ilimitados</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Precio hasta $3.000/número</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Máximo 100 vendedores</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Carga masiva XLS</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="card-footer bg-white border-0 p-4 text-center">
+                  <button className="btn btn-primary btn-lg w-100" style={{
+                    background: 'var(--easyreef-gradient-primary)',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '12px 24px',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <i className="bi bi-credit-card me-2"></i>
+                    Adquirir Plan
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Plan Gold */}
+            <div className="col-lg-4 col-md-6">
+              <div className="card h-100 border-0 shadow-sm">
+                <div className="card-header text-center py-4 border-0" style={{ background: 'rgba(255, 193, 7, 0.1)' }}>
+                  <h3 className="fw-bold mb-0">Gold</h3>
+                  <div className="d-flex justify-content-center align-items-baseline mt-3">
+                    <span className="display-5 fw-bold">$39.990</span>
+                    <span className="text-muted ms-1">/mes</span>
+                  </div>
+                  <p className="text-muted mt-2">Para uso profesional</p>
+                </div>
+                <div className="card-body p-4">
+                  <ul className="list-unstyled mb-4">
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Rifas ilimitadas</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Números ilimitados</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Premios ilimitados</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Precio libre</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Vendedores ilimitados</span>
+                    </li>
+                    <li className="mb-3 d-flex align-items-center">
+                      <i className="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Carga incremental XLS</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="card-footer bg-white border-0 p-4 text-center">
+                  <button className="btn btn-outline-primary btn-lg w-100" style={{
+                    borderRadius: '12px',
+                    padding: '12px 24px',
+                    fontWeight: '600',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <i className="bi bi-credit-card me-2"></i>
+                    Adquirir Plan
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Call to Action */}
       <section className="py-5" style={{ background: 'var(--easyreef-gradient-primary)' }}>
         <div className="container text-center">
@@ -869,13 +1077,13 @@ const HomePage = () => {
                   <i className="bi bi-rocket-takeoff me-2"></i>
                   Crear Mi Primera Rifa
                 </Link>
-                <Link to="/dashboard" className="btn btn-outline-light btn-lg px-4 py-3 fw-semibold" style={{
+                <Link to="/" className="btn btn-outline-light btn-lg px-4 py-3 fw-semibold" style={{
                   borderRadius: '12px',
                   borderColor: 'rgba(255, 255, 255, 0.3)',
                   transition: 'all 0.3s ease'
                 }}>
                   <i className="bi bi-graph-up me-2"></i>
-                  Ver Dashboard
+                  Ver Inicio
                 </Link>
               </div>
             </div>

@@ -146,11 +146,10 @@ const Navbar = () => {
           console.error('Error al verificar/agregar usuario:', error);
           // Continuamos con el proceso aunque haya error en la verificación/inserción
         }
-      }
-    };
-    
-    checkAndAddUser();
-  }, [state.user]);
+      };
+      
+      checkAndAddUser();
+    }, [state.user]);
 
   // Memoizar callbacks para useOutsideClick
   const closeAccountMenu = useCallback(() => {

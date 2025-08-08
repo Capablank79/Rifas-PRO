@@ -1,0 +1,59 @@
+/* Estilos directos para la aplicación */
+
+/* Estilos para los botones de planes */
+.btn-outline-primary:hover {
+  background: var(--easyreef-gradient-primary) !important;
+  color: white !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+  border-color: transparent !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Efecto hover para las tarjetas de planes */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Estilos para las tarjetas */
+.card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Estilos para los bordes de colores */
+.border-left-primary {
+  border-left: 0.25rem solid var(--easyreef-primary) !important;
+}
+
+.border-left-success {
+  border-left: 0.25rem solid var(--easyreef-success) !important;
+}
+
+.border-left-info {
+  border-left: 0.25rem solid var(--easyreef-secondary) !important;
+}
+
+.border-left-warning {
+  border-left: 0.25rem solid var(--easyreef-accent) !important;
+}
+
+.border-left-danger {
+  border-left: 0.25rem solid var(--easyreef-danger) !important;
+}

@@ -16,6 +16,7 @@ import AdvancedAnalyticsPage from './pages/AdvancedAnalyticsPage';
 import BuyerRegistryPage from './pages/BuyerRegistryPage';
 import WebAccessPage from './pages/WebAccessPage';
 import HomePage from './pages/HomePage';
+import HomePageFree from './pages/HomePageFree';
 import CreateRafflePage from './pages/CreateRafflePage';
 import RaffleManagementPage from './pages/RaffleManagementPage';
 import SellPage from './pages/SellPage';
@@ -23,6 +24,7 @@ import BuyerPage from './pages/BuyerPage';
 import ConfirmationPage from './pages/ConfirmationPage';
 import WebpayPage from './pages/WebpayPage';
 import DashboardPage from './pages/DashboardPage';
+import FreePlanPage from './pages/FreePlanPage';
 import './App.css';
 import { useEffect, useState } from 'react';
 
@@ -67,6 +69,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/free-plan" element={<FreePlanPage />} />
             <Route path="/sellers" element={<SellersPage />} />
             <Route path="/realtime-sales" element={<RealtimeSalesPage />} />
             <Route path="/transparent-raffles" element={<TransparentRafflesPage />} />
@@ -80,6 +83,7 @@ function App() {
                 <main className="flex-grow-1">
                   <Routes>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="/free" element={<HomePageFree />} />
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/create" element={<CreateRafflePage />} />
                     <Route path="/rafflemanagement/:id" element={<RaffleManagementPage />} />

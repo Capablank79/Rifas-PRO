@@ -118,6 +118,7 @@ const transporter = nodemailer.createTransporter({
   }
 });
 ```
+Hay un error en el código. Necesito corregir createTransporter por createTransport
 
 ## 🎉 Beneficios Logrados
 

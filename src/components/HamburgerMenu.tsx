@@ -96,12 +96,12 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = () => {
 
       <div className={`menu-container ${menuOpen ? 'visible' : 'hidden'}`}>
         <div className="menu-item" onClick={() => {
-          navigate('/dashboard');
+          navigate('/');
           setMenuOpen(false);
           setSettingsOpen(false);
         }}>
           <i className="bi bi-speedometer2"></i>
-          Dashboard
+          Inicio
         </div>
         <div className="menu-divider"></div>
         <div className="menu-item" onClick={toggleSettings}>

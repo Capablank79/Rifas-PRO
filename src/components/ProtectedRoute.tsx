@@ -28,6 +28,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
+  // Si está autenticado con rol 'free', redirigir a la página free
+  if (state.user?.role === 'free' && window.location.pathname === '/') {
+    return <Navigate to="/free" replace />;
+  }
+
   // Si está autenticado, mostrar el contenido
   return <>{children}</>;
 };

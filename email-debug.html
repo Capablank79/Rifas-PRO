@@ -76,12 +76,19 @@
         }
         
         function showStatus(message, type) {
-            statusElement.innerHTML = `<div class="${type}">${message}</div>`;
+            // Crear el elemento de forma segura en lugar de usar innerHTML
+            const statusDiv = document.createElement('div');
+            statusDiv.className = type;
+            statusDiv.textContent = message;
+            
+            // Limpiar el contenedor de estado y agregar el nuevo elemento
+            statusElement.textContent = '';
+            statusElement.appendChild(statusDiv);
         }
         
         function clearLog() {
             logElement.textContent = '';
-            statusElement.innerHTML = '';
+            statusElement.textContent = '';
         }
         
         async function runDiagnostic() {

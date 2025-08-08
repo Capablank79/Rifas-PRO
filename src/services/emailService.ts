@@ -45,6 +45,13 @@ export interface WaitlistConfirmationData {
   message?: string;
 }
 
+export interface WelcomeEmailData {
+  name: string;
+  email: string;
+  password?: string;
+  isGoogleLogin?: boolean;
+}
+
 // Función para generar el HTML del email de notificación
 export const generateWinnerEmailHTML = (data: WinnerNotificationData): string => {
   return `
@@ -312,6 +319,20 @@ const sendEmailWithSMTP = async (credentials: EmailCredentials): Promise<string 
   // Las variables del frontend no deben interferir con la configuración del servidor
 
   try {
+    const emailHTML = createEmailTemplate(credentials);
+    
+    // Verificar si estamos en entorno de desarrollo
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (isDevelopment) {
+      console.log('🔧 Entorno de desarrollo detectado - Simulando envío de credenciales de demo');
+      console.log('📧 Contenido del correo de credenciales:', emailHTML);
+      
+      // Simular un retraso y devolver un ID falso
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return 'dev-credentials-email-simulated';
+    }
+    
     // Usar nuestra API route que utiliza SMTP con Nodemailer
     const response = await fetch('/api/send-email', {
       method: 'POST',
@@ -321,7 +342,7 @@ const sendEmailWithSMTP = async (credentials: EmailCredentials): Promise<string 
       body: JSON.stringify({
         to: credentials.email,
         subject: '🎉 ¡Tus credenciales de demo están listas!',
-        html: createEmailTemplate(credentials)
+        html: emailHTML
         // No enviar 'from' - el servidor usará FROM_EMAIL y FROM_NAME de sus variables de entorno
       })
     });
@@ -344,6 +365,14 @@ const sendEmailWithSMTP = async (credentials: EmailCredentials): Promise<string 
   } catch (error) {
     console.error('❌ Error en la petición de email:', error);
     console.error('❌ No se pudo enviar el email: Error de conexión');
+    
+    // En caso de error, simular éxito en desarrollo para no interrumpir el flujo
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isDevelopment) {
+      console.log('🔧 Entorno de desarrollo - Continuando a pesar del error de envío de credenciales');
+      return 'dev-credentials-email-error-handled';
+    }
+    
     return null;
   }
 };
@@ -710,6 +739,19 @@ const sendWaitlistEmailWithSMTP = async (data: WaitlistConfirmationData): Promis
       subject: emailData.subject
     });
     
+    // Verificar si estamos en entorno de desarrollo
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (isDevelopment) {
+      console.log('🔧 Entorno de desarrollo detectado - Simulando envío de correo de waitlist');
+      console.log('📧 Contenido del correo de waitlist:', emailHTML);
+      
+      // Simular un retraso y devolver un ID falso
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return 'dev-waitlist-email-simulated';
+    }
+    
+    // En producción, enviar el correo normalmente
     const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {
@@ -734,6 +776,12 @@ const sendWaitlistEmailWithSMTP = async (data: WaitlistConfirmationData): Promis
     return result.id || 'email-sent';
   } catch (error) {
     console.error('❌ Error al enviar email de confirmación de waitlist vía SMTP:', error);
+    // En caso de error, simular éxito en desarrollo para no interrumpir el flujo
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isDevelopment) {
+      console.log('🔧 Entorno de desarrollo - Continuando a pesar del error de envío de waitlist');
+      return 'dev-waitlist-email-error-handled';
+    }
     return null;
   }
 };
@@ -766,6 +814,222 @@ export const sendWaitlistConfirmation = async (data: WaitlistConfirmationData): 
     
   } catch (error) {
     console.error('Error enviando confirmación de waitlist:', error);
+    return false;
+  }
+};
+
+// Función para generar el HTML del email de bienvenida
+export const generateWelcomeEmailHTML = (data: WelcomeEmailData): string => {
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>¡Bienvenido a EasyRif!</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                background-color: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .credentials {
+                background-color: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+                border-left: 4px solid #007bff;
+            }
+            .button {
+                display: inline-block;
+                background-color: #007bff;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                font-size: 14px;
+                color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🎉 ¡Bienvenido a EasyRif!</h1>
+            </div>
+            
+            <p>Hola <strong>${data.name}</strong>,</p>
+            
+            <p>¡Gracias por registrarte en EasyRif! Tu cuenta ha sido creada exitosamente.</p>
+            
+            ${data.password ? `
+            <div class="credentials">
+                <h3>🔑 Tus Credenciales de Acceso</h3>
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Contraseña:</strong> ${data.password}</p>
+                <p><em>Te recomendamos guardar esta información en un lugar seguro.</em></p>
+            </div>
+            ` : ''}
+            
+            ${data.isGoogleLogin ? `
+            <div class="credentials">
+                <h3>🔑 Acceso con Google</h3>
+                <p>Has iniciado sesión utilizando tu cuenta de Google.</p>
+                <p><strong>Email:</strong> ${data.email}</p>
+            </div>
+            ` : ''}
+            
+            <h3>✨ ¿Qué puedes hacer con tu cuenta?</h3>
+            <ul>
+                <li>✅ Crear y gestionar rifas</li>
+                <li>✅ Sistema de ventas completo</li>
+                <li>✅ Reportes y estadísticas</li>
+                <li>✅ Notificaciones automáticas</li>
+            </ul>
+            
+            <div style="text-align: center;">
+                <a href="https://rifas-demo.vercel.app/login" class="button">🚀 Acceder a tu Cuenta</a>
+            </div>
+            
+            <h3>💡 Características principales</h3>
+            <ul>
+                <li>🎯 Crear rifas con múltiples premios</li>
+                <li>🎫 Gestionar números y ventas</li>
+                <li>👥 Administrar vendedores</li>
+                <li>📊 Ver reportes en tiempo real</li>
+                <li>🎉 Realizar sorteos automáticos</li>
+                <li>📧 Enviar notificaciones</li>
+            </ul>
+            
+            <div class="footer">
+                <p><strong>¿Necesitas ayuda?</strong></p>
+                <ul>
+                    <li>📧 Email: easyrdemo@exesoft.cl</li>
+                    <li>📱 WhatsApp: +56928762136</li>
+                </ul>
+                
+                <p><em>¡Gracias por elegir EasyRif para gestionar tus rifas!</em></p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+};
+
+// Función para enviar correo de bienvenida usando SMTP
+const sendWelcomeEmailWithSMTP = async (data: WelcomeEmailData): Promise<string | null> => {
+  try {
+    const emailHTML = generateWelcomeEmailHTML(data);
+    
+    const emailData = {
+      to: data.email,
+      subject: '🎉 ¡Bienvenido a EasyRif!',
+      html: emailHTML
+    };
+    
+    console.log('📧 Enviando correo de bienvenida vía SMTP a:', data.email);
+    console.log('📋 Datos del email:', {
+      to: data.email,
+      subject: emailData.subject
+    });
+    
+    // Verificar si estamos en entorno de desarrollo
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (isDevelopment) {
+      console.log('🔧 Entorno de desarrollo detectado - Simulando envío de correo');
+      console.log('📧 Contenido del correo:', emailHTML);
+      
+      // Simular un retraso y devolver un ID falso
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return 'dev-email-simulated';
+    }
+    
+    // En producción, enviar el correo normalmente
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Error en la respuesta de la API SMTP:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Respuesta de la API de email SMTP:', result);
+    
+    return result.id || 'email-sent';
+  } catch (error) {
+    console.error('❌ Error al enviar email de bienvenida vía SMTP:', error);
+    // En caso de error, simular éxito en desarrollo para no interrumpir el flujo
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isDevelopment) {
+      console.log('🔧 Entorno de desarrollo - Continuando a pesar del error de envío');
+      return 'dev-email-error-handled';
+    }
+    return null;
+  }
+};
+
+// Función principal para enviar correo de bienvenida
+export const sendWelcomeEmail = async (data: WelcomeEmailData): Promise<boolean> => {
+  try {
+    console.log('📧 ENVIANDO CORREO DE BIENVENIDA VÍA SMTP:');
+    console.log('Para:', data.email);
+    console.log('Nombre:', data.name);
+    if (data.password) {
+      console.log('Contraseña incluida: Sí');
+    }
+    if (data.isGoogleLogin) {
+      console.log('Login con Google: Sí');
+    }
+    
+    // Envío vía SMTP con Nodemailer
+    try {
+      const emailId = await sendWelcomeEmailWithSMTP(data);
+      if (emailId) {
+        console.log('✅ Email de bienvenida enviado exitosamente vía SMTP:', emailId);
+        return true;
+      } else {
+        console.log('❌ No se pudo enviar el email de bienvenida: Configuración SMTP no disponible');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Error en envío SMTP de bienvenida:', error);
+      return false;
+    }
+    
+  } catch (error) {
+    console.error('Error enviando correo de bienvenida:', error);
     return false;
   }
 };

@@ -1,0 +1,808 @@
+# 🛠️ Prompt para Build IA - EasyRif Pro
+
+## 🎯 Objetivo
+Desarrollar **EasyRif Pro**, una plataforma web profesional para la creación y gestión de rifas con planes Free, Plata y Gold. Debe permitir a los organizadores crear rifas personalizadas, vender números, gestionar vendedores, ejecutar sorteos y enviar notificaciones automáticas por email.
+
+---
+
+## 🔧 Stack Tecnológico
+- **Frontend:** React 18 + TypeScript + Vite  
+- **Estilos:** TailwindCSS (reemplaza Bootstrap)  
+- **Backend:** Supabase (Auth, Database, Storage, Functions)  
+- **Emails:** SMTP (cPanel)  
+- **Integraciones:** MercadoPago/Webpay (pagos), APIs WhatsApp/Facebook (difusión)  
+
+---
+
+## 🔑 Autenticación y Roles
+- **Supabase Auth:** email/password.  
+- **Roles según plan (usuarios.rol):**
+  - **Free:** 1 rifa, máx 100 números, máx 5 premios, precio hasta $1.000/número.
+  - **Plata:** 5 rifas, 200 números/rifa, premios ilimitados, precio hasta $3.000/número, máx 100 vendedores (XLS masiva).
+  - **Gold:** rifas ilimitadas, números ilimitados, precio libre, premios ilimitados, vendedores ilimitados (carga incremental XLS).  
+
+---
+
+## 🗄 Modelo de Datos (ERD Supabase)
+Tablas principales:
+- `usuarios` (id, email, nombre, rol, plan, created_at)  
+- `rifas` (id, user_id FK, titulo, descripcion, precio_numero, total_numeros, draw_date, estado)  
+- `premios` (id, raffle_id FK, nombre, descripcion, image_url, gallery JSON)  
+- `vendedores` (id, raffle_id FK, nombre, email, telefono, numeros_asign JSON)  
+- `ventas` (id, raffle_id FK, vendor_id FK, numero, comprador, email, qr_code, vendido_at)  
+- `sorteos` (id, raffle_id FK, winners JSON, hash_seed, created_at)  
+- `pagos` (id, user_id FK, banco, tipo, cuenta, titular)  
+
+**Reglas RLS:**  
+- Los organizadores solo ven sus rifas.  
+- Vendedores ven solo sus números y ventas.  
+- Compradores acceden solo a su QR y resultado.  
+
+---
+
+## 🎯 Funcionalidades Clave
+
+### 1. Gestión de Rifas (Organizador)
+- Wizard de creación (datos básicos → premios → vendedores → cuenta bancaria).
+- Restricciones por plan (números, premios, precios).
+- Carga masiva XLS (validación automática).
+- Bloqueo de edición si hay ventas confirmadas.
+
+### 2. Gestión de Vendedores
+- Registro manual (todos los planes).
+- Carga XLS (Plata y Gold).
+- Dashboard con estadísticas de ventas por vendedor.
+
+### 3. Proceso de Compra (Comprador)
+- Página pública de rifa con premios, números disponibles.
+- Selección de números y datos del comprador.
+- Pago: transferencia (Free) o pasarela (Plata/Gold).
+- Confirmación vía email con QR único.
+
+### 4. Sorteos
+- Free: selección manual.
+- Plata: algoritmo aleatorio automático.
+- Gold: algoritmo auditable (hash público), opción streaming.
+- Email automático a ganadores.
+
+### 5. Emails SMTP (cPanel)
+- Confirmación compra con QR.
+- Recordatorio de sorteo.
+- Notificación ganadores.
+- Reporte diario organizador (Gold).
+
+### 6. Integración RRSS
+- Free: enlace WhatsApp simple.
+- Plata: WhatsApp + Facebook con OG image.
+- Gold: API WhatsApp Business y autopost en IG/FB.
+
+---
+
+## 📊 Comparativa de Planes y Casos de Uso
+- **Free:** microemprendedores, 1 rifa simple (100 números × $1.000 → $100.000 máx).  
+- **Plata:** cursos escolares/pequeños eventos (200 números × $2.000 × 45 vendedores ≈ $1.8M).  
+- **Gold:** organizaciones grandes (juntas de vecinos, clubes deportivos) rifas ilimitadas, precio libre, ventas escalables.
+
+---
+
+## 🔄 Flujos BPMN
+1. Creación de rifa (wizard).
+2. Carga masiva vendedores XLS.
+3. Proceso de compra y confirmación QR.
+4. Sorteo automático/manual con hash auditable.
+
+---
+
+## 🎨 UI/UX
+- Branding: **EasyRif Pro** (colores azul profesional + acentos verde éxito).
+- Estilo Figma-like, responsive y PWA instalable.
+- Vistas:
+  - Login/Registro.
+  - Dashboard organizador.
+  - Wizard Crear Rifa.
+  - Panel Vendedores.
+  - Página pública rifa (comprador).
+  - Sorteo y resultados.
+  - Reportes PDF.
+
+---
+
+## 🔐 Seguridad
+- Supabase RLS (Row Level Security) configurado.
+- Hash auditable para sorteos (Gold).
+- Validación QR antifraude.
+- Restricción de edición post-venta.
+
+---
+
+## 🏗️ Metodología de Desarrollo (Build IA)
+- **Sprint 1:** Autenticación, dashboard básico, planes con límites visibles.  
+- **Sprint 2:** Wizard crear rifa + premios + vendedores manuales.  
+- **Sprint 3:** Pagos (transferencia/MercadoPago), confirmación QR.  
+- **Sprint 4:** Carga XLS, sorteos automáticos/manuales, hash auditable.  
+- **Sprint 5:** Emails SMTP, reportes PDF, integración RRSS.  
+
+---
+
+## ✅ Resultado Esperado
+Un sistema **listo para producción**, deploy en Vercel (frontend) y Supabase (backend), con SMTP cPanel y pagos integrados, que permita gestionar rifas según planes Free, Plata y Gold, con seguridad, escalabilidad y documentación completa.
+
+
+📘 Documentación del Proyecto EasyRif Pro
+Versión: 1.0.0
+Stack: React + TypeScript + Vite + Tailwind + Supabase (backend, auth y storage) + SMTP (cPanel)
+________________________________________
+🎯 Visión General
+EasyRif Pro es una plataforma web moderna para crear, administrar y realizar rifas digitales, orientada a usuarios individuales, cursos escolares, comunidades y organizaciones.
+Permite gestionar rifas de forma transparente, incluyendo venta de números, manejo de premios, vendedores, sorteos automáticos/auditables, pagos integrados y viralización en redes sociales.
+________________________________________
+✨ Características Generales
+•	Creación de rifas con planes escalonados (Free, Plata, Gold).
+•	Subida de premios con foto, descripción y galería (según plan).
+•	Gestión de vendedores manual y por carga masiva XLS.
+•	Sistema de pagos con cuenta bancaria destino (manual y pasarela).
+•	Sorteos automáticos y auditables con reportes PDF/QR.
+•	Emails automáticos SMTP (cPanel).
+•	Integración con RRSS para viralización (WhatsApp, Facebook, Instagram).
+•	Reportes detallados de ventas, ingresos y ranking de vendedores.
+•	Seguridad y transparencia con auditoría y control RLS (Supabase).
+•	Experiencia móvil como PWA instalable.
+________________________________________
+🛠️ Planes y Funcionalidades
+Funcionalidad	Free (Básico)	Plata (Cursos/Grupos)	Gold (Profesional/Comunidad)
+Rifas activas	1	5	Ilimitadas
+Números por rifa	100 máx. ($1.000)	200 máx. ($3.000)	Ilimitados, precio libre
+Premios	5 máx.	Ilimitados	Ilimitados (galería y video)
+Vendedores	No aplica	Hasta 100 (XLS masivo)	Ilimitados (XLS incremental)
+Sorteo	Manual básico	Automático + PDF + QR	Auditado + streaming
+Pagos	Manual (transfer.)	Pasarela auto. + manual	Auto. + branding personalizado
+Emails SMTP	Confirmación	Confirmación + Ganadores	Confirmación + Ganadores + Reportes
+RRSS	WhatsApp simple	FB/WhatsApp con imagen	Auto-post en FB/IG + branding
+Reportes	Básico	Por vendedor y ventas	Ranking, historial, PDF/Excel
+Branding	Genérico	Logo simple	Branding completo (landing)
+________________________________________
+🗂 Módulos Principales
+1.	Autenticación y planes de usuario
+2.	Gestión de rifas y premios
+3.	Gestión de vendedores y carga XLS
+4.	Ventas de números con QR
+5.	Sorteos automáticos/auditables
+6.	Pagos y cuenta destino
+7.	Emails SMTP automáticos
+8.	Reportes y estadísticas
+9.	Integración RRSS y landing pública
+10.	Seguridad, auditoría y RLS
+________________________________________
+🏗️ Arquitectura Técnica
+Frontend:
+•	React 18 + TypeScript + Tailwind CSS
+•	React Router DOM (routing)
+•	Context API + Reducer (state management)
+•	Framer Motion (animaciones)
+•	PWA (instalable en móviles)
+Backend:
+•	Supabase:
+o	Auth (usuarios, roles y planes).
+o	Postgres DB (rifas, premios, vendedores, ventas, sorteos).
+o	Storage (fotos de premios).
+o	RLS (seguridad a nivel fila).
+o	Functions (validación de planes y sorteos).
+Integraciones:
+•	SMTP (cPanel) para emails automáticos.
+•	Pasarela pagos (MercadoPago/Webpay).
+•	APIs RRSS (WhatsApp Business API, OG tags para FB/IG).
+________________________________________
+🗄️ Modelo de Base de Datos (Supabase)
+Tabla: users
+•	id (UUID, PK)
+•	email (TEXT, unique)
+•	name (TEXT)
+•	role (ENUM: free, plata, gold)
+•	subscription_expiry (TIMESTAMP)
+•	created_at (TIMESTAMP)
+Tabla: raffles
+•	id (UUID, PK)
+•	user_id (FK → users)
+•	title (TEXT)
+•	description (TEXT)
+•	price_per_number (INT)
+•	total_numbers (INT)
+•	plan (ENUM: free, plata, gold)
+•	status (ENUM: draft, active, finished)
+•	draw_date (TIMESTAMP)
+•	created_at (TIMESTAMP)
+Tabla: prizes
+•	id (UUID, PK)
+•	raffle_id (FK → raffles)
+•	name (TEXT)
+•	description (TEXT)
+•	image_url (TEXT)
+•	gallery (JSON[])
+•	video_url (TEXT)
+•	created_at (TIMESTAMP)
+Tabla: vendors
+•	id (UUID, PK)
+•	raffle_id (FK → raffles)
+•	name (TEXT)
+•	email (TEXT)
+•	phone (TEXT)
+•	assigned_numbers (JSON[])
+Tabla: raffle_numbers
+•	id (UUID, PK)
+•	raffle_id (FK → raffles)
+•	number (INT)
+•	vendor_id (FK → vendors)
+•	buyer_name (TEXT)
+•	buyer_email (TEXT)
+•	is_sold (BOOLEAN)
+•	qr_code (TEXT)
+•	sold_at (TIMESTAMP)
+Tabla: draws
+•	id (UUID, PK)
+•	raffle_id (FK → raffles)
+•	winners (JSON[])
+•	hash_seed (TEXT)
+•	created_at (TIMESTAMP)
+Tabla: bank_accounts
+•	id (UUID, PK)
+•	user_id (FK → users)
+•	bank_name (TEXT)
+•	account_number (TEXT)
+•	account_type (TEXT)
+•	holder_name (TEXT)
+________________________________________
+🔒 Políticas RLS Clave
+•	Un usuario solo ve y gestiona sus rifas (raffles.user_id = auth.uid()).
+•	Vendedores solo ven sus números.
+•	Compradores solo ven sus compras y QR.
+________________________________________
+📩 Emails Automáticos SMTP
+1.	Confirmación compra con QR (todos los planes).
+2.	Recordatorio previo al sorteo (Plata y Gold).
+3.	Notificación ganadores (Plata y Gold).
+4.	Reporte diario de ventas (Gold).
+________________________________________
+🌐 Integración con RRSS
+•	Generación de imagen OG automática para rifas.
+•	Botón compartir WhatsApp en todos los planes.
+•	Plata: integración Facebook/Messenger con imagen y texto preformateado.
+•	Gold:
+o	Auto-post en FB/IG con imagen generada.
+o	Enlaces personalizados con branding.
+o	API WhatsApp Business para envío masivo a vendedores.
+________________________________________
+🔥 Reglas de Negocio Críticas
+•	Bloqueo dinámico: Si hay números vendidos, precio/números/premios base no se pueden editar.
+•	Carga XLS: Plata hasta 100 vendedores en 1 carga, Gold incremental sin límite.
+•	Premios: Todos pueden subir foto/nombre/desc., Plata y Gold tienen galería y video.
+•	Sorteo auditable (Gold): Hash público para validar transparencia.
+________________________________________
+📱 Experiencia Móvil (PWA)
+•	Panel optimizado para vendedores en móviles.
+•	QR directo a venta/compras.
+•	Instalación sin stores.
+________________________________________
+✅ Próximos pasos:
+1.	Crear esquema en Supabase con tablas y RLS.
+2.	Diseñar pantallas (wireframes) y flujos UX/UI.
+3.	Implementar módulos paso a paso en Build IA.
+4.	Documentar APIs internas y endpoints.
+5.	Integrar emails SMTP y pasarelas.
+6.	Pruebas E2E por plan.
+
+
+
+
+
+
+
+🖼 Diagrama Visual Maestro - EasyRif Pro
+________________________________________
+1️⃣ Arquitectura General
+plaintext
+CopyEdit
+┌───────────────────────────────────────────────────────────────┐
+│                         FRONTEND (PWA)                        │
+│      React + TypeScript + Tailwind + React Router + PWA       │
+│                                                               │
+│   ┌──────────────┬─────────────────────┬─────────────────┐    │
+│   │ ORGANIZADOR  │ VENDEDORES          │ COMPRADORES     │    │
+│   │ (Free/Plata/ │ (Plata/Gold)        │ (Todos los planes)│  │
+│   └──────────────┴─────────────────────┴─────────────────┘    │
+│                      (UX diferenciada por plan)               │
+└───────────────────────────────────────────────────────────────┘
+                 │
+                 ▼
+┌───────────────────────────────────────────────────────────────┐
+│                           BACKEND                             │
+│                        Supabase Cloud                         │
+│                                                               │
+│   ┌────────────┬─────────────┬─────────────┬─────────────┐   │
+│   │ Auth       │ DB (RLS)    │ Storage     │ Functions    │   │
+│   │ Usuarios y │ Rifas,      │ Fotos y     │ Sorteos      │   │
+│   │ planes     │ premios,    │ documentos  │ auditoría    │   │
+│   └────────────┴─────────────┴─────────────┴─────────────┘   │
+│                 │                      │                      │
+│                 ▼                      ▼                      │
+│      SMTP (cPanel)              Pasarela Pagos               │
+│ (Emails automáticos: QR,      (MercadoPago/Webpay)           │
+│  ganadores, recordatorios)                                   │
+│                                                               │
+│        Integración RRSS (WhatsApp, FB, IG APIs)              │
+└───────────────────────────────────────────────────────────────┘
+________________________________________
+2️⃣ Flujo UX/UI por Roles
+A. Organizador (Free, Plata, Gold)
+plaintext
+CopyEdit
+[Dashboard Organizador]
+   │
+   ├─▶ Crear Rifa
+   │     ├─ Título, descripción, precio x número
+   │     ├─ Configurar premios (nombre, descripción, foto)
+   │     ├─ Configurar vendedores (manual o XLS)
+   │     └─ Definir cuenta bancaria (pagos destino)
+   │
+   ├─▶ Gestión Rifa
+   │     ├─ Ver ventas (grilla números vendidos/libres)
+   │     ├─ Subir premios extra (Plata/Gold)
+   │     ├─ Editar datos permitidos (si no hay ventas críticas)
+   │     └─ Compartir rifa (RRSS)
+   │
+   ├─▶ Sorteo
+   │     ├─ Free: Manual básico
+   │     ├─ Plata: Automático + QR + PDF
+   │     └─ Gold: Auditado + Streaming en vivo
+   │
+   └─▶ Reportes
+         ├─ Free: Básico
+         ├─ Plata: Por vendedor y totales
+         └─ Gold: Ranking, Excel/PDF, historial rifas
+________________________________________
+B. Vendedores (Plata y Gold)
+plaintext
+CopyEdit
+[Dashboard Vendedor]
+   │
+   ├─▶ Ver números asignados
+   ├─▶ Registrar ventas (comprador: nombre, email, pago)
+   ├─▶ Generar QR de compra
+   ├─▶ Compartir enlace de venta (WhatsApp/Facebook)
+   └─▶ Consultar estadísticas personales (ventas, comisiones Gold)
+________________________________________
+C. Compradores (Todos los planes)
+plaintext
+CopyEdit
+[Página Pública de Rifa]
+   │
+   ├─▶ Ver premios (foto + descripción)
+   ├─▶ Seleccionar números disponibles
+   ├─▶ Pagar (manual Free o automático Plata/Gold)
+   ├─▶ Recibir email con QR (confirmación compra)
+   └─▶ Ver resultados sorteo (cuando finalice)
+________________________________________
+3️⃣ Flujo de Sorteo y Auditoría
+plaintext
+CopyEdit
+[Organizador inicia sorteo]
+   │
+   ├─ Free: Selección manual → muestra ganadores básicos
+   ├─ Plata: Algoritmo aleatorio → PDF + QR auto.
+   └─ Gold: Algoritmo + hash público (auditable) + streaming
+            └─ Enlace público para transparencia
+________________________________________
+4️⃣ Flujo de Emails SMTP
+plaintext
+CopyEdit
+VENTA EXITOSA ─▶ Email comprador (QR)  
+ANTES DEL SORTEO ─▶ Recordatorio automático (Plata/Gold)  
+POST-SORTEO ─▶ Email ganadores  
+REPORTE DIARIO ─▶ Email organizador (Gold)  
+________________________________________
+5️⃣ Carga Masiva XLS
+plaintext
+CopyEdit
+[Organizador (Plata/Gold) → Descargar plantilla XLS]
+   │
+   ├─ Plata: Cargar archivo único (≤ 100 vendedores)
+   └─ Gold: Cargas incrementales ilimitadas hasta crear rifa
+       │
+       └─ Validación backend:
+             - Correos válidos
+             - Duplicados eliminados
+             - Resumen previo antes de confirmar
+________________________________________
+6️⃣ Integración con RRSS
+plaintext
+CopyEdit
+COMPARTIR (Free) → WhatsApp con enlace QR  
+COMPARTIR (Plata) → WhatsApp + Facebook con imagen OG  
+AUTO-POST (Gold) → FB/IG programado + API WhatsApp Business (envíos a vendedores)
+________________________________________
+7️⃣ Seguridad (RLS y Auditoría)
+•	RLS en Supabase: cada usuario ve solo sus rifas y datos.
+•	Bloqueo dinámico: al venderse un número, precio/cantidad quedan bloqueados.
+•	Logs auditoría: cambios en rifas y sorteos registrados en audit_logs.
+🖼 Wireframes UI - EasyRif Pro
+________________________________________
+1️⃣ Dashboard Organizador (Free/Plata/Gold)
+yaml
+CopyEdit
+┌──────────────────────────────────────────────┐
+│ LOGO EasyRif Pro         [Usuario ▼]         │
+├──────────────────────────────────────────────┤
+│ MENÚ LATERAL:                                │
+│  ▸ Dashboard                                 │
+│  ▸ Mis Rifas                                 │
+│  ▸ Crear Rifa                                │
+│  ▸ Premios                                   │
+│  ▸ Vendedores                                │
+│  ▸ Sorteo                                    │
+│  ▸ Reportes                                  │
+│  ▸ Configuración (Perfil/Banco)              │
+├──────────────────────────────────────────────┤
+│ [CTA: Crear Nueva Rifa]                      │
+│----------------------------------------------│
+│ Rifas Activas:                               │
+│  • Nombre: "Rifa Colegio ABC"  | Ventas: 80% │
+│    Sorteo: 25-08-2025 | Plan: Plata          │
+│    [Gestionar] [Ver Reportes] [Compartir]    │
+│----------------------------------------------│
+│ Rifas Finalizadas:                           │
+│  • Nombre: "Rifa Comunidad XYZ"              │
+│    Ganadores: 3 | PDF: [Descargar]           │
+└──────────────────────────────────────────────┘
+✅ Diferencias por plan:
+•	Free: Solo 1 rifa visible, sin reportes avanzados.
+•	Plata: Hasta 5 rifas, acceso a reportes por vendedor.
+•	Gold: Rifas ilimitadas, branding + ranking vendedores.
+________________________________________
+2️⃣ Crear Rifa (Wizard de pasos)
+less
+CopyEdit
+PASO 1: Datos básicos
+ ┌───────────────────────────────┐
+ │ Nombre Rifa:  [___________]   │
+ │ Descripción:  [___________]   │
+ │ Precio N°:    [$____]         │
+ │ Total N°:     [___]           │
+ │ Fecha sorteo: [dd/mm/aaaa]    │
+ │ [Siguiente >]                 │
+ └───────────────────────────────┘
+
+PASO 2: Premios
+ ┌───────────────────────────────┐
+ │ [Agregar Premio +]            │
+ │ Premio: Nombre, descripción,   │
+ │ foto (drag&drop)              │
+ │ [Vista previa tarjetas premios]│
+ └───────────────────────────────┘
+
+PASO 3: Vendedores
+ ┌───────────────────────────────┐
+ │ Plata: [Cargar XLS] [Agregar] │
+ │ Gold: [Cargas Incrementales]  │
+ │ Vista lista vendedores + valid.│
+ └───────────────────────────────┘
+
+PASO 4: Cuenta Bancaria (Pagos)
+ ┌───────────────────────────────┐
+ │ Banco: [_________]            │
+ │ Tipo:  [_________]            │
+ │ N° Cuenta: [_________]        │
+ │ Nombre titular: [_________]    │
+ │ [Finalizar Rifa]               │
+ └───────────────────────────────┘
+________________________________________
+3️⃣ Gestión de Premios
+sql
+CopyEdit
+┌──────────────────────────────────────────────┐
+│ [Agregar Premio +]                           │
+│----------------------------------------------│
+│ Premios cargados:                            │
+│  1. TV 55"  | Foto miniatura | [Editar] [X]  │
+│  2. Tablet  | Foto miniatura | [Editar] [X]  │
+│----------------------------------------------│
+│ Galería (Plata/Gold): vista drag & drop      │
+└──────────────────────────────────────────────┘
+________________________________________
+4️⃣ Panel Vendedores (Plata/Gold)
+less
+CopyEdit
+┌──────────────────────────────────────────────┐
+│ MIS VENTAS                                   │
+├──────────────────────────────────────────────┤
+│ Total asignados: 50 | Vendidos: 30 (60%)     │
+│----------------------------------------------│
+│ [Registrar Venta +]                          │
+│ - Nombre comprador                           │
+│ - Email comprador                             │
+│ - Números vendidos (checklist)               │
+│ [Generar QR y enviar email]                  │
+│----------------------------------------------│
+│ Botón [Compartir en WhatsApp]                │
+└──────────────────────────────────────────────┘
+________________________________________
+5️⃣ Página Pública de Rifa (Compradores)
+sql
+CopyEdit
+┌──────────────────────────────────────────────┐
+│ [LOGO Rifa / Branding Gold]                  │
+│----------------------------------------------│
+│ Rifa: "Colegio ABC"                          │
+│ Sorteo: 25-08-2025                           │
+│----------------------------------------------│
+│ PREMIOS:                                     │
+│  🏆 TV 55" (imagen grande)                   │
+│  📱 Tablet                                   │
+│----------------------------------------------│
+│ SELECCIONA NÚMEROS DISPONIBLES               │
+│ [1][2][X][4][5]... (botones dinámicos)       │
+│----------------------------------------------│
+│ [Pagar Manual] (Free)   [Pagar Automático]   │
+└──────────────────────────────────────────────┘
+________________________________________
+6️⃣ Panel de Sorteo
+less
+CopyEdit
+┌──────────────────────────────────────────────┐
+│ [Iniciar Sorteo]                             │
+│----------------------------------------------│
+│ Método:                                      │
+│  - Free: Manual (ingresar ganador)           │
+│  - Plata: Automático (algoritmo)             │
+│  - Gold: Automático + hash auditable         │
+│----------------------------------------------│
+│ Resultado:                                   │
+│ Ganador #1: N° 23 - Juan Pérez               │
+│ Ganador #2: N° 45 - Ana López                │
+│----------------------------------------------│
+│ [Enviar emails ganadores] [Descargar PDF]    │
+│ Gold: [Streaming en vivo] [Ver hash]         │
+└──────────────────────────────────────────────┘
+________________________________________
+7️⃣ Reportes y Estadísticas
+yaml
+CopyEdit
+┌──────────────────────────────────────────────┐
+│ Reportes:                                    │
+│----------------------------------------------│
+│ Ventas totales: $ 2.450.000                  │
+│ Números vendidos: 80%                        │
+│----------------------------------------------│
+│ Ranking vendedores (Gold):                   │
+│ 1. Pedro (30 ventas)                         │
+│ 2. Laura (25 ventas)                         │
+│----------------------------------------------│
+│ Exportar: [PDF] [Excel]                      │
+└──────────────────────────────────────────────┘
+
+________________________________________
+8️⃣ Integración RRSS
+•	Botones directos en panel organizador:
+[Compartir en WhatsApp] [Publicar en Facebook] [Auto-Post (Gold)]
+•	Vista previa OG generada: imagen con premios y logo.
+
+📘 Documentación Completa - EasyRif Pro
+________________________________________
+🔑 1. Arquitectura Técnica Completa
+less
+CopyEdit
+[Frontend - React + Vite + Tailwind]  -->  [Supabase Backend]
+       |                                         |
+       |                                         |
+       v                                         v
+[PWA Instalación móvil]               [Auth, DB, Storage, Functions]
+       |                                         |
+       |               ┌─────────────────────────┤
+       v               │ SMTP cPanel (Emails)    │
+[Browser Users]        │ MercadoPago/Webpay      │
+                       │ WhatsApp/Facebook APIs  │
+                       └─────────────────────────┘
+________________________________________
+🗄 2. ERD - Base de Datos en Supabase
+scss
+CopyEdit
+┌───────────────┐          ┌───────────────┐
+│   usuarios    │          │    rifas      │
+├───────────────┤          ├───────────────┤
+│ id (PK)       │   1 ────▶│ user_id (FK)  │
+│ email         │          │ titulo        │
+│ nombre        │          │ descripcion   │
+│ rol (ENUM)    │          │ precio_numero │
+│ plan          │          │ total_numeros │
+│ created_at    │          │ draw_date     │
+└───────────────┘          │ estado        │
+                            └───────────────┘
+                                   │ 1
+                                   │
+                                   ▼
+                           ┌───────────────┐
+                           │    premios    │
+                           ├───────────────┤
+                           │ id (PK)       │
+                           │ raffle_id (FK)│
+                           │ nombre        │
+                           │ descripcion   │
+                           │ image_url     │
+                           │ gallery (JSON)│
+                           │ video_url     │
+                           └───────────────┘
+
+          ┌───────────────┐
+          │   vendedores  │
+          ├───────────────┤
+          │ id (PK)       │
+          │ raffle_id (FK)│
+          │ nombre        │
+          │ email         │
+          │ telefono      │
+          │ numeros_asign │
+          └───────────────┘
+
+          ┌───────────────┐
+          │  ventas       │
+          ├───────────────┤
+          │ id (PK)       │
+          │ raffle_id (FK)│
+          │ vendor_id (FK)│
+          │ numero        │
+          │ comprador     │
+          │ email         │
+          │ qr_code       │
+          │ vendido_at    │
+          └───────────────┘
+
+          ┌───────────────┐
+          │   sorteos     │
+          ├───────────────┤
+          │ id (PK)       │
+          │ raffle_id (FK)│
+          │ winners (JSON)│
+          │ hash_seed     │
+          │ created_at    │
+          └───────────────┘
+
+          ┌───────────────┐
+          │  pagos        │
+          ├───────────────┤
+          │ id (PK)       │
+          │ user_id (FK)  │
+          │ banco         │
+          │ tipo          │
+          │ cuenta        │
+          │ titular       │
+          └───────────────┘
+________________________________________
+🔄 3. Flujos BPMN (Business Process Model)
+A. Creación de Rifa (Organizador)
+less
+CopyEdit
+[Inicio]
+   │
+   ▼
+(Autenticación)
+   │
+   ▼
+[Dashboard → Crear Rifa]
+   │
+   ├─ PASO 1: Datos básicos (título, precio, fecha)
+   ├─ PASO 2: Premios (nombre, desc, foto, galería)
+   ├─ PASO 3: Vendedores (manual / XLS según plan)
+   ├─ PASO 4: Cuenta bancaria destino
+   │
+   ▼
+[Guardar en DB Supabase]
+   │
+   ├─ Generar números automáticos
+   ├─ Configurar permisos RLS
+   │
+   ▼
+[Estado: Activa]
+   │
+   ▼
+[Compartir en RRSS y habilitar ventas]
+________________________________________
+B. Flujo de Compra (Comprador)
+less
+CopyEdit
+[Enlace Público Rifa]
+   │
+   ▼
+[Visualiza premios y números libres]
+   │
+   ▼
+[Selecciona números → Ingresar datos]
+   │
+   ├─ Plan Free: Pago manual (transferencia)
+   └─ Plan Plata/Gold: Pago pasarela (MercadoPago)
+   │
+   ▼
+[Registro venta en DB]
+   │
+   ├─ Generar QR único
+   ├─ Email automático SMTP (confirmación QR)
+   ▼
+[Estado: Números vendidos actualizados]
+________________________________________
+C. Flujo de Sorteo (Organizador)
+csharp
+CopyEdit
+[Fecha sorteo alcanzada]
+   │
+   ▼
+[Dashboard → Iniciar Sorteo]
+   │
+   ├─ Free: Manual (selección directa)
+   ├─ Plata: Automático (random algorithm)
+   └─ Gold: Automático + hash auditable + streaming
+   │
+   ▼
+[Registrar ganadores en DB]
+   │
+   ├─ Generar PDF resultados
+   ├─ Emails automáticos ganadores
+   │
+   ▼
+[Publicación en página pública]
+________________________________________
+D. Carga Masiva XLS (Plata y Gold)
+csharp
+CopyEdit
+[Organizador descarga plantilla XLS]
+   │
+   ▼
+[Completa datos vendedores → Subir XLS]
+   │
+   ▼
+[Validación backend: emails, duplicados]
+   │
+   ▼
+[Confirmación previsualización]
+   │
+   ▼
+[Alta vendedores y asignación números]
+________________________________________
+🛡 4. Seguridad
+•	RLS (Row Level Security):
+o	Organizador solo ve rifas propias.
+o	Vendedores solo ven números asignados.
+o	Compradores solo su QR y resultados.
+•	Hash auditado (Gold): Sorteos verificables con hash público.
+•	Restricciones:
+o	Una vez vendido un número, se bloquea edición de precio/números.
+o	XLS validado contra límites por plan.
+________________________________________
+📩 5. Emails Automáticos (SMTP cPanel)
+•	Confirmación compra con QR (todos).
+•	Recordatorio de sorteo (Plata/Gold).
+•	Notificación ganadores (Plata/Gold).
+•	Reporte diario organizador (Gold).
+________________________________________
+📊 6. Comparativa de Planes con Ejemplos Reales
+•	Free: 100 números × $1.000 → Máx $100.000.
+•	Plata (curso escolar): 200 números × $2.000 × 45 vendedores (20 números c/u) → $1.800.000 aprox.
+•	Gold (comunidad): Sin límite de números/precio → 500 números × $3.000 → $1.500.000+, escalable por vendedores ilimitados.
+________________________________________
+🌐 7. Integración RRSS
+•	Free: WhatsApp simple.
+•	Plata: WhatsApp + Facebook con OG imagen.
+•	Gold: Auto-post FB/IG + branding, API WhatsApp Business (envíos masivos).
+________________________________________
+🎨 8. Mockups UI
+Se integran los wireframes de:
+•	Dashboard organizador.
+•	Crear rifa (wizard).
+•	Panel vendedores.
+•	Página pública comprador.
+•	Sorteo.
+•	Reportes.
+(Ya generados en Figma-style anteriormente).
+________________________________________
+✅ 9. Entrega Final
+•	ERD listo en Supabase.
+•	Diagramas BPMN de procesos clave.
+•	Mockups UI.
+•	Documentación funcional y técnica.
+
