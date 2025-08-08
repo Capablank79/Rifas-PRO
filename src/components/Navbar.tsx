@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import './Navbar.css';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../config/supabase';
+// Se ha eliminado la importación de supabase ya que no se utiliza después de eliminar la función checkAndAddUser
 
 const Navbar = () => {
   const { state, logout } = useAuth();
@@ -12,145 +12,8 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLLIElement>(null);
   const navbarRef = useRef<HTMLDivElement>(null);
   
-  // Verificar si el usuario existe en la tabla users y agregarlo si no existe
-  useEffect(() => {
-    const checkAndAddUser = async () => {
-      // Solo ejecutar si hay un usuario autenticado con email
-      if (state.user?.email && state.user?.id) {
-        try {
-          console.log('Verificando usuario en tabla users:', state.user.email);
-          
-          // Verificar primero si el email ya existe en la tabla users
-          const emailCheckResponse = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(state.user.email)}&select=id,email,role`, 
-            {
-              headers: {
-                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-          
-          if (!emailCheckResponse.ok) {
-            console.error(`Error al verificar email: ${emailCheckResponse.status} ${emailCheckResponse.statusText}`);
-            // Continuar con el proceso aunque haya error en la verificación
-          } else {
-            const existingUserByEmail = await emailCheckResponse.json();
-            console.log('Verificación por email:', existingUserByEmail);
-            
-            // Si el usuario ya existe por email, no hacer nada más
-            if (existingUserByEmail && existingUserByEmail.length > 0) {
-              console.log('Usuario ya existe con este email, no es necesario insertar:', existingUserByEmail);
-              return;
-            }
-            
-            // Si llegamos aquí, el usuario no existe por email, verificar si existe por ID
-            const idCheckResponse = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/users?id=eq.${state.user.id}&select=id,role`, 
-              {
-                headers: {
-                  'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-                  'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                  'Content-Type': 'application/json'
-                }
-              }
-            );
-            
-            if (!idCheckResponse.ok) {
-              console.error(`Error al verificar ID: ${idCheckResponse.status} ${idCheckResponse.statusText}`);
-              // Continuar con el proceso aunque haya error en la verificación
-            } else {
-              const existingUserById = await idCheckResponse.json();
-              console.log('Verificación por ID:', existingUserById);
-              
-              // Si el usuario ya existe por ID, no hacer nada más
-              if (existingUserById && existingUserById.length > 0) {
-                console.log('Usuario ya existe con este ID, no es necesario insertar:', existingUserById);
-                return;
-              }
-              
-              // Si llegamos aquí, el usuario no existe ni por email ni por ID, proceder a insertar
-              console.log('Usuario no encontrado, procediendo a insertar...');
-              
-              // Verificar si hay un rol preestablecido para este email
-              const roleResponse = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/user_roles_control?email=eq.${encodeURIComponent(state.user.email)}&select=role`, 
-                {
-                  headers: {
-                    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json'
-                  }
-                }
-              );
-              
-              const preassignedRoleData = await roleResponse.json();
-              const roleToAssign = (preassignedRoleData && preassignedRoleData.length > 0) 
-                ? preassignedRoleData[0].role 
-                : 'free';
-              
-              console.log('Insertando usuario en tabla users:', {
-                id: state.user.id,
-                email: state.user.email,
-                name: state.user.username || state.user.email,
-                role: roleToAssign
-              });
-              
-              try {
-                // Insertar el usuario usando API REST
-                const insertResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/users`, {
-                  method: 'POST',
-                  headers: {
-                    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    id: state.user.id,
-                    email: state.user.email,
-                    name: state.user.username || state.user.email,
-                    role: roleToAssign
-                  })
-                });
-                
-                if (!insertResponse.ok) {
-                  const errorData = await insertResponse.text();
-                  console.error('Error al insertar usuario usando API REST:', errorData);
-                  // Continuamos con el proceso aunque haya error en la inserción
-                } else {
-                  console.log(`Usuario agregado exitosamente con rol: ${roleToAssign}`);
-                }
-              } catch (insertError) {
-                console.error('Error en la solicitud de inserción:', insertError);
-                // Continuamos con el proceso aunque haya error en la inserción
-              }
-              
-              // Enviar correo de bienvenida (opcional)
-              try {
-                const { sendWelcomeEmail } = await import('../services/emailService');
-                
-                await sendWelcomeEmail({
-                  name: state.user.username || state.user.email,
-                  email: state.user.email,
-                  isGoogleLogin: true
-                });
-                
-                console.log('✅ Correo de bienvenida enviado exitosamente');
-              } catch (emailError) {
-                console.error('❌ Error al enviar correo de bienvenida:', emailError);
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error al verificar/agregar usuario:', error);
-          // Continuamos con el proceso aunque haya error en la verificación/inserción
-        }
-      }
-    };
-    
-    checkAndAddUser();
-  }, [state.user]);
+  // Se ha eliminado la función checkAndAddUser que verificaba y agregaba usuarios a la base de datos
+  // para evitar errores de conexión con la base de datos
 
   // Memoizar callbacks para useOutsideClick
   const closeAccountMenu = useCallback(() => {

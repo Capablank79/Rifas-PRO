@@ -55,19 +55,15 @@ const FreePlanPage = () => {
   const handleGoogleLogin = async () => {
     try {
       setIsSubmitting(true);
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`
-        }
-      });
+      // Utilizamos la función loginWithGoogle de authFunctions.js que implementa
+      // la solución recomendada usando redirectTo en lugar de popups
+      const { loginWithGoogle } = await import('../authFunctions');
+      await loginWithGoogle();
       
-      if (error) throw error;
+      // Este código se ejecutará cuando el usuario regrese después del login con Google
+      // debido a la redirección configurada en loginWithGoogle
       
-      // No es necesario hacer nada más aquí, ya que la redirección la maneja Supabase
-      console.log('Iniciando sesión con Google, redirigiendo...', data);
-      
-      // Modificar la URL de redirección para ir a HomePage en lugar de dashboard
+      // Configuramos un listener para detectar cuando el usuario ha iniciado sesión
       const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider === 'google') {
           try {
@@ -128,7 +124,8 @@ const FreePlanPage = () => {
       });
     } catch (error) {
       console.error('Error al iniciar sesión con Google:', error);
-      setErrorMessage('Error al iniciar sesión con Google. Inténtalo de nuevo.');
+      // No mostramos mensaje de error al usuario ya que la redirección
+      // a Google se maneja automáticamente por Supabase
     } finally {
       setIsSubmitting(false);
     }

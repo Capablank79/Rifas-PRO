@@ -98,22 +98,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (session) {
           try {
-            // Obtener información del usuario desde la tabla users
-            const { data: userData, error } = await supabase
-              .from('users')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (error) {
-              console.error('Error al obtener datos del usuario:', error);
-            }
-            
+            // Crear usuario con datos básicos sin consultar la base de datos
             const user: DemoUser = {
               id: session.user.id,
               username: session.user.email || '',
               email: session.user.email || '',
-              role: userData?.role || 'free',
+              role: 'free', // Asignamos rol por defecto
               loginTime: new Date().toISOString()
             };
             
@@ -221,18 +211,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      // Primero intentamos cerrar sesión en Supabase Auth
-      await supabase.auth.signOut();
+      // Primero limpiamos todas las sesiones locales
+      localStorage.clear(); // Elimina todo, incluyendo 'demoUser'
+      sessionStorage.clear();
       
-      // También limpiamos la sesión de demo si existe
-      localStorage.removeItem('demoUser');
+      // Intentamos cerrar la sesión en Supabase con scope local para evitar el error net::ERR_ABORTED
+      try {
+        // Usamos scope local para evitar el error net::ERR_ABORTED que ocurre con Google Auth
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch (signOutError) {
+        console.error('Error en supabase.auth.signOut:', signOutError);
+        // Continuamos con el proceso de logout aunque falle signOut
+      }
       
       dispatch({ type: 'LOGOUT' });
+      
+      // Forzamos una redirección completa para asegurar que se eliminen todas las cookies
+      // y estados de sesión del navegador, añadiendo un parámetro para evitar caché
+      window.location.href = '/?logout=' + new Date().getTime();
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
       // Aún así, intentamos limpiar el estado local
       localStorage.removeItem('demoUser');
+      sessionStorage.clear();
       dispatch({ type: 'LOGOUT' });
+      window.location.href = '/';
     }
   };
 

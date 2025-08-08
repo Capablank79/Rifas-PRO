@@ -12,20 +12,14 @@ interface DiagnosticData {
 }
 
 const DiagnosticPanel: React.FC = () => {
+  // Panel desactivado por solicitud del usuario
   const [diagnosticData, setDiagnosticData] = useState<DiagnosticData | null>(null);
   const [emailTestResult, setEmailTestResult] = useState<string>('');
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Solo mostrar en desarrollo o si se pasa un parámetro especial
-    const urlParams = new URLSearchParams(window.location.search);
-    const showDiagnostic = import.meta.env.DEV || urlParams.get('debug') === 'env';
-    
-    setIsVisible(showDiagnostic);
-    
-    if (showDiagnostic) {
-      runDiagnostic();
-    }
+    // Panel desactivado - siempre establecer como no visible
+    setIsVisible(false);
   }, []);
 
   const runDiagnostic = async () => {

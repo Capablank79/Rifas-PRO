@@ -17,6 +17,7 @@ import BuyerRegistryPage from './pages/BuyerRegistryPage';
 import WebAccessPage from './pages/WebAccessPage';
 import HomePage from './pages/HomePage';
 import HomePageFree from './pages/HomePageFree';
+import SafeHtmlDocPage from './pages/SafeHtmlDocPage';
 import CreateRafflePage from './pages/CreateRafflePage';
 import RaffleManagementPage from './pages/RaffleManagementPage';
 import SellPage from './pages/SellPage';
@@ -77,6 +78,7 @@ function App() {
           <Route path="/advanced-analytics" element={<AdvancedAnalyticsPage />} />
           <Route path="/buyer-registry" element={<BuyerRegistryPage />} />
           <Route path="/web-access" element={<WebAccessPage />} />
+          <Route path="/safe-html-doc" element={<SafeHtmlDocPage />} />
             <Route path="/*" element={
               <ProtectedRoute>
                 <Navbar />
